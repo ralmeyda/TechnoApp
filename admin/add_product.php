@@ -172,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-group">
                     <label for="product_name">Product Name *</label>
                     <input type="text" name="product_name" id="product_name" required 
-                           placeholder="e.g., 2024 S-Works Tarmac SL8">
+                           placeholder="e.g., Bangus">
                 </div>
 
                 <div class="form-group">
@@ -182,13 +182,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="form-group">
-                    <label for="price">Price (PHP) *</label>
+                    <label for="price">Price (PHP) (kg)* </label>
                     <input type="number" name="price" id="price" step="0.01" min="0" required 
                            placeholder="15000.00">
                 </div>
 
                 <div class="form-group">
-                    <label for="stock_quantity">Stock Quantity *</label>
+                    <label for="stock_quantity">Stock Quantity (kg)* </label>
                     <input type="number" name="stock_quantity" id="stock_quantity" min="0" required 
                            placeholder="10">
                 </div>

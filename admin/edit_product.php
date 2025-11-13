@@ -197,19 +197,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="number" name="stock_quantity" id="stock_quantity" min="0" required 
                            value="<?php echo $product['stock_quantity']; ?>">
                 </div>
-
-                <div class="form-group">
-                    <label for="product_image">Product Image (leave empty to keep current)</label>
-                    <?php if ($product['image_url'] && file_exists('../' . $product['image_url'])): ?>
-                        <img src="../<?php echo clean($product['image_url']); ?>" 
-                             alt="Current product image" class="current-image">
-                        <br><br>
-                    <?php endif; ?>
-                    <input type="file" name="product_image" id="product_image" 
-                           accept="image/jpeg,image/png,image/jpg,image/gif">
-                    <small>Max size: 5MB. Formats: JPG, PNG, GIF</small>
-                </div>
-
                 <button type="submit" class="btn-primary">
                     <i class="ri-save-line"></i> Update Product
                 </button>

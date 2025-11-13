@@ -135,7 +135,8 @@ function getProducts($categoryId = null) {
     $sql = "SELECT p.*, c.category_name 
             FROM products p 
             LEFT JOIN categories c ON p.category_id = c.category_id 
-            WHERE p.is_active = TRUE";
+            WHERE p.is_active = TRUE 
+              AND p.stock_quantity > 0"; // ✅ hide zero-stock items
     
     if ($categoryId) {
         $sql .= " AND p.category_id = ?";

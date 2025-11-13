@@ -106,7 +106,7 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
                 <?php if (empty($products)): ?>
                     <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
                         <i class="ri-shopping-bag-line" style="font-size: 80px; color: #ddd;"></i>
-                        <h2 style="color: #666; margin-top: 20px;">No products available yet</h2>
+                        <h2 style="color: #666; margin-top: 20px;">Out of Stock</h2>
                         <p style="color: #999;">Admin is adding products. Please check back later!</p>
                     </div>
                 <?php else: ?>
@@ -123,7 +123,7 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
                             </div>
                             <h2 class="product-title"><?php echo clean($product['product_name']); ?></h2>
                             <div class="price-and-cart">
-                                <p style="font-weight:600;">PHP<?php echo number_format($product['price'], 0); ?></p>
+                                <p style="font-weight:600;">PHP<?php echo number_format($product['price'], 0); ?>/kg</p>
                                 <span class="price" style="visibility:hidden;"><?php echo $product['price']; ?></span>
                                 <i class="ri-shopping-bag-line add-cart" 
                                    data-product-id="<?php echo $product['product_id']; ?>"

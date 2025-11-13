@@ -1,13 +1,27 @@
 <?php
-$username = "root";
-$password = ""; // default in XAMPP
-$database = "cycride_db";
+require_once '../config.php';
 
-$conn = mysqli_connect($servername, $username, $password, $database);
+echo "<h2>Database Connection Test</h2>";
 
-// Check connection
-if (!$conn) {
-    die("❌ Connection failed: " . mysqli_connect_error());
+if ($conn->ping()) {
+    echo "<p style='color: green;'>✅ Connected to database: " . DB_NAME . "</p>";
+    
+    // Test categories
+    $result = $conn->query("SELECT * FROM categories");
+    echo "<p>Categories found: " . $result->num_rows . "</p>";
+    
+    while($row = $result->fetch_assoc()) {
+        echo "<li>" . $row['category_name'] . "</li>";
+    }
+    
+    // Test admin user
+    $result = $conn->query("SELECT username, user_type FROM users WHERE user_type = 'admin'");
+    echo "<p>Admin users: " . $result->num_rows . "</p>";
+    
+    while($row = $result->fetch_assoc()) {
+        echo "<li>Username: " . $row['username'] . " (Type: " . $row['user_type'] . ")</li>";
+    }
+} else {
+    echo "<p style='color: red;'>❌ Connection failed</p>";
 }
-echo "✅ Database connected successfully!";
 ?>

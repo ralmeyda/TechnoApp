@@ -23,10 +23,10 @@ addCartButtons.forEach(button => {
         // Show notification
         notification.classList.add("show");
 
-        // Hide after 3 seconds
+        // Hide after 2 seconds
         setTimeout(() => {
             notification.classList.remove("show");
-        }, 1500);
+        }, 1000);
     });
 });
 
@@ -123,6 +123,16 @@ const updateCartCount = change => {
     }
 };
 
+document.querySelector('.btn-buy').addEventListener('click', () => {
+  fetch('purchase.php', { method: 'POST' })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message);
+      if (data.success) {
+        window.location.reload();
+      }
+    });
+});
 const buyNowButton = document.querySelector(".btn-buy");
 buyNowButton.addEventListener("click", () => {
     const cartBoxes = cartContent.querySelectorAll(".cart-box");
@@ -142,7 +152,7 @@ buyNowButton.addEventListener("click", () => {
     });
 
     // Check login status and display username
-document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
     const username = localStorage.getItem("username");
     const loginLink = document.querySelector(".login-link");
     const registerLink = document.querySelector(".register-link");

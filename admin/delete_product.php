@@ -23,19 +23,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 exit;
 ?>
-if (isset($_GET['id'])) {
-    $product_id = intval($_GET['id']);
-    $result = deleteProduct($product_id);
-
-    if ($result['success']) {
-        header("Location: manage_products.php?deleted=1");
-        exit;
-    } else {
-        header("Location: manage_products.php?error=1");
-        exit;
-    }
-} else {
-    header("Location: manage_products.php");
-    exit;
-}
-?>

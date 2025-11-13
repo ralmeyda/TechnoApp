@@ -195,7 +195,6 @@ if (isset($_GET['added'])) {
                             <th>Category</th>
                             <th>Price</th>
                             <th>Stock</th>
-                            <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -225,32 +224,19 @@ if (isset($_GET['added'])) {
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <span class="badge <?php echo $product['is_active'] ? 'badge-active' : 'badge-inactive'; ?>">
-                                        <?php echo $product['is_active'] ? 'Active' : 'Inactive'; ?>
-                                    </span>
-                                </td>
-                                <td>
                                     <div class="action-btns">
                                         <?php if ($product['is_active']): ?>
-                                            <!-- Active Product: Show Edit & Deactivate -->
-                                            <a href="edit_product.php?id=<?php echo $product['product_id']; ?>" class="btn-edit">
-                                                <i class="ri-edit-line"></i> Edit
+                                            <!-- Edit Product -->
+                                            <a href="edit_product.php?id=<?php echo $product['product_id']; ?>" class="btn-edit">Edit
                                             </a>
                                             <form method="POST" action="delete_product.php" style="display: inline; margin: 0;"
-                                                  onsubmit="return confirm('Deactivate this product? It will be hidden from customers but can be restored later.');">
+                                                  onsubmit="return confirm('Are you sure you want to delete this product?');">
                                                 <input type="hidden" name="product_id" value="<?php echo $product['product_id']; ?>">
                                                 <button type="submit" class="btn-delete">
-                                                    <i class="ri-eye-off-line"></i> Deactivate
+                                                    Delete
                                                 </button>
                                             </form>
                                         <?php else: ?>
-                                            <!-- Inactive Product: Show Restore -->
-                                            <form method="POST" action="restore_product.php" style="display: inline; margin: 0;">
-                                                <input type="hidden" name="product_id" value="<?php echo $product['product_id']; ?>">
-                                                <button type="submit" class="btn-restore">
-                                                    <i class="ri-arrow-go-back-line"></i> Restore
-                                                </button>
-                                            </form>
                                         <?php endif; ?>
                                     </div>
                                 </td>

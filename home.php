@@ -9,7 +9,7 @@
     </head>
     <body>
         <header>
-        <a href="home.php" class="logo">CYCRIDE</a>
+        <a href="home.php" class="logo">ISDAFISH</a>
         
         <div class="hamburger" id="hamburger">
             <span></span>

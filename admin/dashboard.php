@@ -1,7 +1,5 @@
 
 <?php
-
-
 require_once '../functions.php';
 require_once 'admin_functions.php'; // ✅ make sure the file path is correct
 
@@ -13,21 +11,6 @@ $stats = getDashboardStats();
 
 // ✅ You can set $username if you have session data
 $username = $_SESSION['username'] ?? 'Admin';
-
-
-
-/*
-OLD, DELETE IF NOT NEEDED
-require_once '../functions.php';
-$cleaned_data = clean($data); 
-//require_once '../config.php';
-#require_once 'admin_functions.php';
-
-#requireAdmin();
-
-$stats = getDashboardStats();
-##$username = getCurrentUsername();
-*/
 
 
 ?>
@@ -184,17 +167,6 @@ $stats = getDashboardStats();
                 <h3><?php echo $stats['low_stock']; ?></h3>
                 <p>Low Stock Items</p>
             </div>
-        </div>
-
-        <div class="quick-actions">
-            <h2><i class="ri-flashlight-line"></i> Quick Actions</h2>
-            <p>Welcome to CYCRIDE Admin Panel. Use the navigation above to manage your store.</p>
-            <ul>
-                <li><strong>Add Product:</strong> Add new bikes, helmets, or frames to your catalog</li>
-                <li><strong>Manage Products:</strong> View, edit, or delete existing products</li>
-                <li><strong>View Store:</strong> See what customers see on the storefront</li>
-            </ul>
-        </div>
-    </div>
+    </div>  
 </body>
 </html>

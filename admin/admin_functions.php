@@ -146,9 +146,9 @@ function uploadProductImage($file) {
 }
 
 /**
- * Get dashboard statistics
+ * Get dashboard statistics BALIK PAG MAY ERROR AFTER GAWIN
  */
-function getDashboardStats() {
+/**function getDashboardStats() {
     global $conn;
     
     $stats = [];
@@ -176,11 +176,24 @@ function getDashboardStats() {
     
     return $stats;
 }
+ 
+/**
+ * Dashboard Stats
+ */
+function getDashboardStats() {
+    global $conn;
+    $stats = [];
 
+    $stats['total_products'] = $conn->query("SELECT COUNT(*) FROM products")->fetch_row()[0];
+    $stats['total_users'] = $conn->query("SELECT COUNT(*) FROM users")->fetch_row()[0];
+    $stats['total_orders'] = $conn->query("SELECT COUNT(*) FROM orders")->fetch_row()[0];
+    $stats['total_revenue'] = $conn->query("SELECT IFNULL(SUM(total_amount),0) FROM orders WHERE status='accepted'")->fetch_row()[0];
+    $stats['low_stock'] = $conn->query("SELECT COUNT(*) FROM products WHERE stock_quantity <= 5")->fetch_row()[0];
+    $stats['pending_orders'] = $conn->query("SELECT COUNT(*) FROM orders WHERE status='pending'")->fetch_row()[0];
 
-/* Added to functions.php instead
-function clean($data) {
-    return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
+    return $stats;
 }
-*/
+
+
+
 ?>
