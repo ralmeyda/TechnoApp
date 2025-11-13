@@ -1,0 +1,28 @@
+Task List:
+
+
+New: 
+Connect database admin panel for add, edit, delete products
+Add Products through admin panel
+UI clean up 
+Create use case description
+Create use case diagram
+Create 
+
+
+In Progress:
+Create admin panel admin.php
+
+
+
+Complete 
+File type clean up = Check
+Href file type clean up = Check
+Connect Database = Check
+Create Login/Registration with database = Check by MC
+
+
+
+Para hindi magulo, plain website (EMPTY PRODUCT) muna gawin natin.
+After maayos lahat doon nalang i-add mga products USING admin ADD PRODUCT. 
+Need lang CAUTION sa pwedeng apektado nung HTML or CSS changes.
