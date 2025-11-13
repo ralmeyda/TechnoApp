@@ -9,7 +9,7 @@
     </head>
     <body>
         <header>
-        <a href="home.php" class="logo">CYCRIDE</a>
+        <a href="home.php" class="logo">Thoto & Nene Fresh Live Tilapia and Bangus</a>
         
         <div class="hamburger" id="hamburger">
             <span></span>
@@ -36,12 +36,9 @@
         </div>
         <h1 style="text-align:center; font-weight:600px; padding-top:35px;"> About Us  </h1>
         <section class="container">
-            <p style="margin-right:260px; padding:25px; padding-left:15%;"> Welcome to CYCRIDE, your ultimate destination for premium bicycles and exceptional service.
-At CYCRIDE, we’re passionate about cycling and committed to delivering the highest quality products and support to riders of all levels. We specialize in premium bike brands known for their performance, innovation, and reliability—whether you're a casual rider, a competitive racer, or a trail enthusiast.
+            <p style="margin-right:260px; padding:25px; padding-left:15%;"> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean vitae gravida arcu, id maximus enim. Nulla facilisi. Duis finibus in quam sit amet dapibus. Maecenas consequat luctus risus in commodo. Vivamus ac magna a erat tempor elementum vitae eu magna. Nulla hendrerit, enim et ullamcorper volutpat, lacus nunc dignissim urna, quis congue ipsum augue non risus. Ut sit amet velit ac tortor euismod aliquet.
 
-But we don't just sell bikes—we build lasting relationships. Our experienced team is dedicated to providing expert advice, personalized fittings, and top-notch maintenance services to ensure every ride is smooth, safe, and unforgettable.
-
-Ride with confidence. Ride with CYCRIDE.</p>
+Aliquam volutpat lacinia ex, sit amet suscipit velit elementum eget. Phasellus congue lacinia sem, sit amet bibendum nunc iaculis quis. Sed ut orci accumsan, consectetur erat et, blandit nisl. Maecenas pretium lectus nec nulla commodo pretium. Phasellus tincidunt sed nunc quis facilisis. Donec posuere pretium molestie. Interdum et malesuada fames ac ante ipsum primis in faucibus. Praesent pharetra malesuada turpis eu tristique. Suspendisse ultricies vitae magna vel tempor. Praesent condimentum elit id neque ultrices fermentum. Cras sodales ligula id neque finibus ullamcorper.</p>
         </section>
         <div class="cart">
             <h2 class="cart-title">Your Cart</h2>

@@ -9,7 +9,7 @@
     </head>
     <body>
         <header>
-        <a href="home.php" class="logo">ISDAFISH</a>
+        <a href="home.php" class="logo">Thoto & Nene Fresh Live Tilapia and Bangus</a>
         
         <div class="hamburger" id="hamburger">
             <span></span>
@@ -32,12 +32,11 @@
         </header>
         <div class="hero-image" style="border-bottom:3px solid rgb(255, 40, 40);">
         </div>
-        <h1 style="text-align:center; font-weight:600px; padding-top:35px;">Brands that we offer </h1>
+        <h1 style="text-align:center; font-weight:600px; padding-top:35px;"> Products that we offer </h1>
         <section class="brand-logos">
-            <img src="images/treklogo.jpg" alt="Trek">
-            <img src="images/sworkslogo.jpg" alt="S-Works">
-            <img src="images/cervelologo.png" alt="Cervelo">
-            <img src="images/giantlogo.jpg" alt="Giant">
+            <h2>Tilapia </h2>
+            <h2> Bangus</h2>
+            <h2> and many more...</h2>
         </section>
         <div class="buy-now-wrapper">
         <a href="index.php" class="buy-now-btn">Buy Now</a>

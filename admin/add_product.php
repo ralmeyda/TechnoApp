@@ -138,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <header>
-        <a href="dashboard.php" class="logo">CYCRIDE ADMIN</a>
+        <a href="dashboard.php" class="logo">Thoto & Nene Fresh Live Tilapia and Bangus</a>
         <nav class="navbar">
             <a href="dashboard.php">Dashboard</a>
             <a href="manage_products.php">Manage Products</a>
