@@ -118,7 +118,7 @@ $username = $_SESSION['username'] ?? 'Admin';
 </head>
 <body>
     <header>
-        <a href="dashboard.php" class="logo">CYCRIDE ADMIN</a>
+        <a href="dashboard.php" class="logo">ADMIN</a>
         <nav class="navbar">
             <span style="color: #333;">Welcome, <strong><?php echo clean($username); ?></strong></span>
             <a href="../logout_process.php" class="logout-btn">Logout</a>

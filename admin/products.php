@@ -26,7 +26,7 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
             href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
             rel="stylesheet"
         />
-        <title>My Products - CYCRIDE</title>
+        <title>My Products - Admin</title>
     </head>
     <body>
         <header>

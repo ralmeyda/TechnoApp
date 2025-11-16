@@ -42,7 +42,7 @@ if (isset($_POST['action'], $_POST['order_id'])) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Manage Orders - CYCRIDE</title>
+    <title>Manage Orders</title>
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>

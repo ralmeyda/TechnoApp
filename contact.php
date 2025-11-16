@@ -6,7 +6,7 @@
             href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
             rel="stylesheet"
         />
-
+        <title> Contact Us </title>
         <style>
     body {
       font-family: Arial, sans-serif;
@@ -83,28 +83,9 @@
         <section class="container">
             <div class="contact-form">
             <h1 style="text-align:center;"> Contact Us </h1></br>
-    <h2>Feel free to use the form or drop us an email. You can call our hotline at 9AM to 5PM.</h2>
+    <h2>You can call our hotline or reach out to our email address and we will get back to you!</h2>
     <label>Email Address: support@loremipsum.com</label>
     <label>Phone Number: 0961-324-3594</label></br>
-    <form>
-      <div class="form-group">
-        <label for="name">Full Name</label>
-        <input type="text" id="name" name="name" required />
-      </div>
-      <div class="form-group">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" name="email" required />
-      </div>
-      <div class="form-group">
-        <label for="subject">Subject</label>
-        <input type="text" id="subject" name="subject" required />
-      </div>
-      <div class="form-group">
-        <label for="message">Your Message</label>
-        <textarea id="message" name="message" rows="5" required></textarea>
-      </div>
-      <button type="submit">Send Message</button>
-    </form>
   </div>
         </section>
         <div class="cart">

@@ -161,7 +161,7 @@ if (isset($_GET['added'])) {
 </head>
 <body>
     <header>
-        <a href="dashboard.php" class="logo">CYCRIDE ADMIN</a>
+        <a href="dashboard.php" class="logo">ADMIN</a>
         <nav class="navbar">
             <a href="dashboard.php">Dashboard</a>
             <a href="products.php">View Store</a>
