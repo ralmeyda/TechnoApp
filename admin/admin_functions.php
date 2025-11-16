@@ -120,18 +120,55 @@ function addProduct(int $categoryId, string $name, string $description, float $p
 /**
  * Update stock quantity (admin AJAX).
  */
-function updateProductStock(int $productId, int $stock): array
+function updateProduct(int $productId, int $categoryId, string $name, string $description, float $price, int $stock, ?string $imageUrl = null): array
 {
     global $pdo;
 
     try {
-        $stmt = $pdo->prepare("UPDATE products SET stock_quantity = :stock WHERE product_id = :id");
-        $stmt->execute([
-            ':stock' => $stock,
-            ':id'    => $productId
-        ]);
+        if ($imageUrl) {
+            // Update WITH new image
+            $stmt = $pdo->prepare("
+                UPDATE products
+                SET category_id   = :cat,
+                    product_name  = :name,
+                    description   = :desc,
+                    price         = :price,
+                    stock_quantity= :stock,
+                    image_url     = :img
+                WHERE product_id  = :id
+            ");
+            $stmt->execute([
+                ':cat'   => $categoryId,
+                ':name'  => $name,
+                ':desc'  => $description,
+                ':price' => $price,
+                ':stock' => $stock,
+                ':img'   => $imageUrl,
+                ':id'    => $productId
+            ]);
+        } else {
+            // Update WITHOUT image
+            $stmt = $pdo->prepare("
+                UPDATE products
+                SET category_id   = :cat,
+                    product_name  = :name,
+                    description   = :desc,
+                    price         = :price,
+                    stock_quantity= :stock
+                WHERE product_id  = :id
+            ");
+            $stmt->execute([
+                ':cat'   => $categoryId,
+                ':name'  => $name,
+                ':desc'  => $description,
+                ':price' => $price,
+                ':stock' => $stock,
+                ':id'    => $productId
+            ]);
+        }
 
         return ['success' => true];
+
     } catch (Exception $e) {
         return ['success' => false, 'message' => $e->getMessage()];
     }
