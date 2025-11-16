@@ -17,23 +17,54 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
         echo json_encode(['success' => false, 'message' => 'You must be logged in to perform this action.']);
         exit;
     }
-$orderAnnouncements = [];
-if (isLoggedIn()) {
-    // Fetch orders of the current user with status 'accepted' or 'declined' that haven't been shown yet
-    $stmt = $pdo->prepare("SELECT order_id, status, created_at FROM orders 
-                           WHERE user_id=? AND status IN ('accepted','declined') 
-                           AND notified=0 ORDER BY created_at DESC");
-    $stmt->execute([getCurrentUserId()]);
-    $orderAnnouncements = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Optionally, mark them as notified so they won't show again
-    if(!empty($orderAnnouncements)){
-        $ids = array_column($orderAnnouncements, 'order_id');
-        $in = str_repeat('?,', count($ids)-1) . '?';
-        $stmt = $pdo->prepare("UPDATE orders SET notified=1 WHERE order_id IN ($in)");
-        $stmt->execute($ids);
+    // Handle order purchase
+    if ($_POST['action'] === 'purchase') {
+        $userId = getCurrentUserId();
+
+        // Assuming you have cart data in POST or session
+        $cart = $_POST['cart'] ?? [];
+        if (empty($cart)) {
+            echo json_encode(['success' => false, 'message' => 'Your cart is empty.']);
+            exit;
+        }
+
+        $totalPrice = 0;
+        foreach ($cart as $item) {
+            $totalPrice += $item['price'] * $item['quantity'];
+        }
+
+        // Insert order into database with 'source' column
+        $stmt = $pdo->prepare("INSERT INTO orders (user_id, products, total_price, status, source) 
+                               VALUES (:user_id, :products, :total_price, 'pending', 'shop')");
+        $stmt->execute([
+            ':user_id' => $userId,
+            ':products' => json_encode($cart),
+            ':total_price' => $totalPrice
+        ]);
+
+        echo json_encode(['success' => true, 'message' => 'Order placed successfully.']);
+        exit;
     }
-}
+
+    // --- Existing announcements code ---
+    $orderAnnouncements = [];
+    if (isLoggedIn()) {
+        // Fetch orders of the current user with status 'accepted' or 'declined' that haven't been shown yet
+        $stmt = $pdo->prepare("SELECT order_id, status, created_at FROM orders 
+                               WHERE user_id=? AND status IN ('accepted','declined') 
+                               AND notified=0 ORDER BY created_at DESC");
+        $stmt->execute([getCurrentUserId()]);
+        $orderAnnouncements = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Optionally, mark them as notified so they won't show again
+        if(!empty($orderAnnouncements)){
+            $ids = array_column($orderAnnouncements, 'order_id');
+            $in = str_repeat('?,', count($ids)-1) . '?';
+            $stmt = $pdo->prepare("UPDATE orders SET notified=1 WHERE order_id IN ($in)");
+            $stmt->execute($ids);
+        }
+    }
 }
 ?>
 <!DOCTYPE html>

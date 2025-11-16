@@ -28,6 +28,25 @@ if (isset($_GET['added'])) {
     <link rel="stylesheet" href="../style.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
     <style>
+        .stock-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-stock {
+            width: 28px;
+            height: 28px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #f5f5f5;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-stock:hover {
+            background: #e0e0e0;
+        }
         body { background: #f5f5f5; }
         .admin-container {
             max-width: 1400px;
@@ -158,6 +177,44 @@ if (isset($_GET['added'])) {
             background: #ffe69c !important;
         }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            function updateStock(productId, newValue) {
+                fetch('update_stock.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product_id: productId, stock: newValue })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(!data.success){
+                        alert('Error updating stock: ' + data.message);
+                    }
+                })
+                .catch(err => console.error(err));
+            }
+
+            // Input field changes
+            document.querySelectorAll('.stock-input').forEach(input => {
+                input.addEventListener('blur', () => {
+                    let productId = input.dataset.id;
+                    let newValue = parseInt(input.value);
+                    if(isNaN(newValue) || newValue < 0) newValue = 0;
+                    input.value = newValue; // sanitize input
+                    updateStock(productId, newValue);
+                });
+
+                input.addEventListener('keydown', (e) => {
+                    if(e.key === 'Enter') {
+                        input.blur(); // trigger update on Enter
+                    }
+                });
+            });
+
+        });
+    </script>
+
 </head>
 <body>
     <header>
@@ -216,7 +273,11 @@ if (isset($_GET['added'])) {
                                 <td><?php echo clean($product['category_name']); ?></td>
                                 <td>₱<?php echo number_format($product['price'], 2); ?></td>
                                 <td>
-                                    <?php echo $product['stock_quantity']; ?>
+                                    <input type="number" min="0" value="<?php echo $product['stock_quantity']; ?>" 
+                                        id="stock-<?php echo $product['product_id']; ?>" 
+                                        data-id="<?php echo $product['product_id']; ?>" 
+                                        class="stock-input" style="width:60px; text-align:center;">
+
                                     <?php if ($product['stock_quantity'] < 5 && $product['stock_quantity'] > 0): ?>
                                         <span class="badge badge-low-stock">Low</span>
                                     <?php elseif ($product['stock_quantity'] == 0): ?>
