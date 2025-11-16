@@ -1,183 +1,121 @@
-const cartIcon = document.querySelector("#cart-icon");
-const cart = document.querySelector(".cart");
-const cartClose = document.querySelector("#cart-close");
-cartIcon.addEventListener("click", () => cart.classList.add("active"));
-cartClose.addEventListener("click", () => cart.classList.remove("active"));
+document.addEventListener("DOMContentLoaded", () => {
+  const cartIcon = document.querySelector("#cart-icon");
+  const cart = document.querySelector(".cart");
+  const cartClose = document.querySelector("#cart-close");
+  const cartContent = document.querySelector(".cart-content");
+  const notification = document.getElementById("cart-notification");
+  const buyNowButton = document.querySelector(".btn-buy");
+  let cartItemCount = 0;
 
-const addCartButtons = document.querySelectorAll(".add-cart");
-const notification = document.getElementById("cart-notification");
+  // Open/close cart
+  cartIcon.addEventListener("click", () => cart.classList.add("active"));
+  cartClose.addEventListener("click", () => cart.classList.remove("active"));
 
-addCartButtons.forEach(button => {
-    button.addEventListener("click", event => {
-        // Check if user is logged in
-        const loggedInUser = localStorage.getItem("username");
-        if (!loggedInUser) {
-            alert("Please log in or register before adding items to your cart.");
-            window.location.href = "login.html";
-            return;
-        }
-
-        const productBox = event.target.closest(".product-box");
-        addToCart(productBox);
-
-        // Show notification
-        notification.classList.add("show");
-
-        // Hide after 2 seconds
-        setTimeout(() => {
-            notification.classList.remove("show");
-        }, 1000);
-    });
-});
-
-const cartContent = document.querySelector(".cart-content");
-const addToCart = productBox => {
-    const productImgSrc = productBox.querySelector("img").src;
-    const productTitle = productBox.querySelector(".product-title").textContent;
-    const productPrice = productBox.querySelector(".price").textContent;
-
-    const cartItems = cartContent.querySelectorAll(".cart-product-title");
-    for (let item of cartItems){
-        if (item.textContent === productTitle){
-            alert("This item is already in the cart.");
-            return;
-        }
-    }
-
-    const cartBox = document.createElement("div");
-    cartBox.classList.add("cart-box");
-    cartBox.innerHTML = `
-    <img src="${productImgSrc}" class="cart-img">
-    <div class="cart-detail">
-        <h2 class="cart-product-title">${productTitle}</h2>
-        <span class="cart-price">${productPrice}</span>
-        <div class="cart-quantity">
-            <button id="decrement">-</button>
-            <span class="number">1</span>
-            <button id="increment">+</button>
-        </div>
-      </div>
-    <i class="ri-delete-bin-line cart-remove"></i>
-    `;
-
-    cartContent.appendChild(cartBox);
-
-    cartBox.querySelector(".cart-remove").addEventListener("click", () => {
-        cartBox.remove();
-
-        updateCartCount(-1);
-        updateTotalPrice();
-    });
-
-    cartBox.querySelector(".cart-quantity").addEventListener("click", event => {
-        const numberElement = cartBox.querySelector(".number");
-        const decrementButton = cartBox.querySelector("#decrement");
-        let quantity = numberElement.textContent;
-
-        if (event.target.id === "decrement" && quantity > 1){
-            quantity--;
-            if (quantity === 1){
-                decrementButton.computedStyleMap.color = "#999";
-            }
-        }
-            else if (event.target.id === "increment"){
-                quantity++;
-                decrementButton.style.color = "#333";
-            }
-        
-        numberElement.textContent = quantity;
-
-        updateTotalPrice();
-    });
-
-    updateCartCount(1);
-    updateTotalPrice();
-};
-
-
-
-const updateTotalPrice = () => {
-    const totalPriceElement = document.querySelector(".total-price");
-    const cartBoxes = cartContent.querySelectorAll(".cart-box");
-    let total = 0;
-    cartBoxes.forEach(cartBox => {
-        const priceElement = cartBox.querySelector(".cart-price");
-        const quantityElement = cartBox.querySelector(".number");
-        const price = priceElement.textContent.replace("$", "");
-        const quantity = quantityElement.textContent;
-        total += price * quantity;
-    });
-    totalPriceElement.textContent = `PHP${total}`;
-};
-
-let cartItemCount = 0;
-const updateCartCount = change => {
-    const cartItemCountBadge = document.querySelector(".cart-item-count");
-    cartItemCount += change;
-    if(cartItemCount > 0){
-        cartItemCountBadge.style.visibility = "visible";
-        cartItemCountBadge.textContent = cartItemCount;
-    } else{
-        cartItemCountBadge.style.visibility = "hidden";
-        cartItemCountBadge.textContent = "";
-    }
-};
-
-document.querySelector('.btn-buy').addEventListener('click', () => {
-  fetch('purchase.php', { method: 'POST' })
-    .then(res => res.json())
-    .then(data => {
-      alert(data.message);
-      if (data.success) {
-        window.location.reload();
-      }
-    });
-});
-const buyNowButton = document.querySelector(".btn-buy");
-buyNowButton.addEventListener("click", () => {
-    const cartBoxes = cartContent.querySelectorAll(".cart-box");
-    if (cartBoxes.length === 0){
-        alert("Your cart is empty. Please add items to your cart before buying.");
+  // Add to cart
+  document.querySelectorAll(".add-cart").forEach(button => {
+    button.addEventListener("click", e => {
+      const isLoggedIn = <?php echo json_encode(isLoggedIn()); ?>;
+      if (!isLoggedIn) {
+        alert("Please log in before adding items to your cart.");
+        window.location.href = "login.php";
         return;
-    }
-    
-    cartBoxes.forEach(cartBox => cartBox.remove());
+      }
 
-    cartItemCount = 0;
-    updateCartCount(0);
+      const btn = e.currentTarget;
+      const productBox = btn.closest(".product-box");
+      const title = productBox.querySelector(".product-title").textContent;
+      const price = parseFloat(productBox.querySelector(".price").textContent);
+      const imgSrc = productBox.querySelector("img").src;
 
-    updateTotalPrice();
-    
-    alert("Thank you for your purchase!");
-    });
+      // Prevent duplicate
+      if ([...cartContent.querySelectorAll(".cart-product-title")].some(el => el.textContent === title)) {
+        alert("This item is already in the cart.");
+        return;
+      }
 
-    // Check login status and display username
-    document.addEventListener("DOMContentLoaded", () => {
-    const username = localStorage.getItem("username");
-    const loginLink = document.querySelector(".login-link");
-    const registerLink = document.querySelector(".register-link");
-    const profileLink = document.querySelector(".profile-link");
-    const userInfoContainer = document.getElementById("user-info");
+      // Create cart item
+      const cartBox = document.createElement("div");
+      cartBox.classList.add("cart-box");
+      cartBox.innerHTML = `
+        <img src="${imgSrc}" class="cart-img">
+        <div class="cart-detail">
+          <h2 class="cart-product-title">${title}</h2>
+          <span class="cart-price">${price}</span>
+          <div class="cart-quantity">
+            <button class="decrement">-</button>
+            <span class="number">1</span>
+            <button class="increment">+</button>
+          </div>
+        </div>
+        <i class="ri-delete-bin-line cart-remove"></i>
+      `;
+      cartContent.appendChild(cartBox);
 
-    if (username) {
-        if (loginLink) loginLink.style.display = "none";
-        if (registerLink) registerLink.style.display = "none";
-        if (profileLink) profileLink.style.display = "inline"; // or "block"
-
-        if (userInfoContainer) {
-            userInfoContainer.innerHTML = `
-                <span style="color: white;">Welcome, <strong>${username}</strong></span>
-                <button id="logout-btn" style="padding: 4px 8px; cursor: pointer;">Logout</button>
-            `;
-
-            document.getElementById("logout-btn").addEventListener("click", () => {
-                localStorage.removeItem("username");
-                window.location.href = "index.html";
-            });
+      // Quantity buttons
+      const numberEl = cartBox.querySelector(".number");
+      cartBox.querySelector(".decrement").addEventListener("click", () => {
+        let qty = parseInt(numberEl.textContent);
+        if (qty > 1) {
+          numberEl.textContent = --qty;
+          updateTotal();
         }
+      });
+      cartBox.querySelector(".increment").addEventListener("click", () => {
+        let qty = parseInt(numberEl.textContent);
+        numberEl.textContent = ++qty;
+        updateTotal();
+      });
+
+      // Remove button
+      cartBox.querySelector(".cart-remove").addEventListener("click", () => {
+        cartBox.remove();
+        updateCount(-1);
+        updateTotal();
+      });
+
+      // Show notification
+      notification.classList.add("show");
+      setTimeout(() => notification.classList.remove("show"), 1500);
+
+      updateCount(1);
+      updateTotal();
+    });
+  });
+
+  // Update cart count
+  function updateCount(change) {
+    const badge = document.querySelector(".cart-item-count");
+    cartItemCount += change;
+    if (cartItemCount > 0) {
+      badge.style.visibility = "visible";
+      badge.textContent = cartItemCount;
+    } else {
+      badge.style.visibility = "hidden";
+      badge.textContent = "";
     }
+  }
+
+  // Update total price
+  function updateTotal() {
+    let total = 0;
+    cartContent.querySelectorAll(".cart-box").forEach(box => {
+      const price = parseFloat(box.querySelector(".cart-price").textContent);
+      const qty = parseInt(box.querySelector(".number").textContent);
+      total += price * qty;
+    });
+    document.querySelector(".total-price").textContent = `PHP${total.toFixed(2)}`;
+  }
+
+  // Buy now
+  buyNowButton.addEventListener("click", () => {
+    if (cartContent.children.length === 0) {
+      alert("Your cart is empty!");
+      return;
+    }
+    cartContent.innerHTML = "";
+    cartItemCount = 0;
+    updateCount(0);
+    updateTotal();
+    alert("Thank you for your purchase!");
+  });
 });
-
-
-    
-    

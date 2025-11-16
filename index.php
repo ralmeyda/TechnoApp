@@ -99,60 +99,37 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
         
         <div class="cart">
             <h2 class="cart-title">Your Cart</h2>
-            <div class="cart-content">
-                <!-- Cart items loaded by JavaScript -->
-            </div>
+            <div class="cart-content"></div>
             <div class="total">
                 <div class="total-title">Total</div>
                 <div class="total-price">PHP0</div>
             </div>
             <button class="btn-buy">Buy Now</button>
             <i class="ri-close-line" id="cart-close"></i>
-        </div>
+            </div>
+        <div id="cart-notification">Product added to cart!</div>
+
+
 
         <section class="shop">
-            <h1 class="section-title">Shop Products</h1>
-            <div class="product-content">
-                <?php if (empty($products)): ?>
-                    <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
-                        <i class="ri-shopping-bag-line" style="font-size: 80px; color: #ddd;"></i>
-                        <h2 style="color: #666; margin-top: 20px;">Out of Stock</h2>
-                        <p style="color: #999;">Admin is adding products. Please check back later!</p>
-                    </div>
-                <?php else: ?>
-                    <?php foreach ($products as $product): ?>
-                        <div class="product-box" data-product-id="<?php echo $product['product_id']; ?>">
-                            <div class="product-row">
-                                <div class="img-box">
-                                    <?php if ($product['image_url'] && file_exists($product['image_url'])): ?>
-                                        <img src="<?php echo clean($product['image_url']); ?>" 
-                                            alt="<?php echo clean($product['product_name']); ?>">
-                                    <?php else: ?>
-                                        <img src="images/placeholder.jpg" alt="No image" style="background:#f0f0f0;">
-                                    <?php endif; ?>
-                                </div>
-
-                                <div class="product-info">
-                                    <h2 class="product-title"><?php echo clean($product['product_name']); ?></h2>
-
-                                    <p class="product-description">
-                                        <?php echo nl2br(clean($product['description'])); ?>
-                                    </p>
-
-                                    <div class="price-and-cart">
-                                        <p class="price-text">PHP<?php echo number_format($product['price'], 0); ?>/kg</p>
-
-                                        <i class="ri-shopping-bag-line add-cart"
-                                        data-product-id="<?php echo $product['product_id']; ?>"
-                                        title="Add to cart"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
-        </section>
+  <h1 class="section-title">Shop Products</h1>
+  <div class="product-content">
+    <?php foreach ($products as $product): ?>
+      <div class="product-box" data-product-id="<?php echo $product['product_id']; ?>">
+        <div class="img-box">
+          <img src="<?php echo clean($product['image_url'] ?: 'images/placeholder.jpg'); ?>" 
+               alt="<?php echo clean($product['product_name']); ?>">
+        </div>
+        <h2 class="product-title"><?php echo clean($product['product_name']); ?></h2>
+        <div class="price-and-cart">
+          <p style="font-weight:600;">PHP<?php echo number_format($product['price'], 0); ?></p>
+          <span class="price" style="display:none;"><?php echo $product['price']; ?></span>
+          <button class="add-cart" title="Add to cart"><i class="ri-shopping-bag-line"></i></button>
+        </div>
+      </div>
+    <?php endforeach; ?>
+  </div>
+</section>
 
         <div id="cart-notification">Product added to cart!</div>
         
@@ -168,7 +145,7 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
             
             // Load cart on page load
             if (localStorage.getItem('userId')) {
-                loadCart();
+               // loadCart();
             }
         });
         </script>
