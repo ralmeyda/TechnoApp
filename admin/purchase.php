@@ -2,91 +2,92 @@
 require_once '../config.php';
 require_once '../functions.php';
 
+header('Content-Type: application/json');
+
 if (!isLoggedIn()) {
     echo json_encode(['success' => false, 'message' => 'User not logged in']);
     exit;
 }
 
-$userId = getCurrentUserId();
-$totalAmount = 0;
-
-// ✅ Get all items in the user's cart
-$cartData = getCartItems($userId);
-$cartItems = $cartData['items'];
+$raw = file_get_contents('php://input');
+$data = json_decode($raw, true);
+$cartItems = $data['cart'] ?? [];
 
 if (empty($cartItems)) {
     echo json_encode(['success' => false, 'message' => 'Your cart is empty.']);
     exit;
 }
 
-// ✅ Check stock before confirming order
-foreach ($cartItems as $item) {
-    $productId = $item['product_id'];
-    $quantity = $item['quantity'];
+$userId = getCurrentUserId();
+$totalAmount = 0;
 
-    // Get the current stock from database
-    $stmt = $conn->prepare("SELECT stock_quantity, product_name FROM products WHERE product_id = ?");
-    $stmt->bind_param("i", $productId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $product = $result->fetch_assoc();
+// Validate stock & compute total
+foreach ($cartItems as $item) {
+    $productId = (int)$item['product_id'];
+    $qty       = (int)$item['quantity'];
+    $price     = (float)$item['price'];
+
+    $stmt = $pdo->prepare("SELECT stock_quantity, product_name FROM products WHERE product_id = ?");
+    $stmt->execute([$productId]);
+    $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$product) {
         echo json_encode(['success' => false, 'message' => 'Product not found.']);
         exit;
     }
 
-    // 🚫 If requested quantity exceeds available stock
-    if ($product['stock_quantity'] < $quantity) {
+    if ($product['stock_quantity'] < $qty) {
         echo json_encode([
             'success' => false,
-            'message' => 'Cannot order more than available stock for ' . $product['product_name'] .
+            'message' => 'Insufficient stock for ' . $product['product_name'] .
                          '. Available: ' . $product['stock_quantity']
         ]);
         exit;
     }
+
+    $totalAmount += $price * $qty;
 }
 
-// ✅ If all items are valid, proceed to order
-$stmt = $conn->prepare("INSERT INTO orders (user_id, total_amount, status, order_date) VALUES (?, ?, 'pending', NOW())");
-$stmt->bind_param("id", $userId, $totalAmount);
-$stmt->execute();
-$orderId = $stmt->insert_id;
+try {
+    $pdo->beginTransaction();
 
-// ✅ Move cart items into order_items + decrement stock
-foreach ($cartItems as $item) {
-    $productId = $item['product_id'];
-    $quantity = $item['quantity'];
-    $price = $item['price'];
+    // Create order
+    $stmt = $pdo->prepare("
+        INSERT INTO orders (user_id, total_amount, status, source, notified)
+        VALUES (?, ?, 'pending', 'shop', 0)
+    ");
+    $stmt->execute([$userId, $totalAmount]);
+    $orderId = $pdo->lastInsertId();
 
-    // Insert into order_items
-    $stmt2 = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
-    $stmt2->bind_param("iiid", $orderId, $productId, $quantity, $price);
-    $stmt2->execute();
+    // Insert items + update stock
+    $itemStmt = $pdo->prepare("
+        INSERT INTO order_items (order_id, product_id, quantity, price)
+        VALUES (?, ?, ?, ?)
+    ");
+    $stockStmt = $pdo->prepare("
+        UPDATE products
+        SET stock_quantity = stock_quantity - ?
+        WHERE product_id = ?
+    ");
 
-    // Deduct stock safely
-    $stmt3 = $conn->prepare("UPDATE products 
-                             SET stock_quantity = stock_quantity - ? 
-                             WHERE product_id = ?");
-    $stmt3->bind_param("ii", $quantity, $productId);
-    $stmt3->execute();
+    foreach ($cartItems as $item) {
+        $productId = (int)$item['product_id'];
+        $qty       = (int)$item['quantity'];
+        $price     = (float)$item['price'];
 
-    // ✅ Optional: deactivate product if stock is 0
-    $conn->query("UPDATE products 
-                  SET is_active = 0 
-                  WHERE product_id = $productId AND stock_quantity <= 0");
+        $itemStmt->execute([$orderId, $productId, $qty, $price]);
+        $stockStmt->execute([$qty, $productId]);
+    }
 
-    // Add to total
-    $totalAmount += ($price * $quantity);
+    $pdo->commit();
+
+    echo json_encode([
+        'success' => true,
+        'message' => 'Thank you for your purchase!',
+        'order_id' => $orderId
+    ]);
+} catch (Exception $e) {
+    $pdo->rollBack();
+    error_log('ORDER ERROR: ' . $e->getMessage());
+    echo json_encode(['success' => false, 'message' => 'Failed to place order.']);
 }
-
-// ✅ Update total amount in the order record
-$stmt4 = $conn->prepare("UPDATE orders SET total_amount = ? WHERE order_id = ?");
-$stmt4->bind_param("di", $totalAmount, $orderId);
-$stmt4->execute();
-
-// ✅ Clear the cart after successful purchase
-$conn->query("DELETE FROM cart WHERE user_id = $userId");
-
-echo json_encode(['success' => true, 'message' => 'Order placed successfully!']);
-?>

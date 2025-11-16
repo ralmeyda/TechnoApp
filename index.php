@@ -11,68 +11,35 @@ if (isLoggedIn()) {
     $cartCount = getCartCount(getCurrentUserId());
 }
 
-// Block cart actions if not logged in
-if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['action'] === 'purchase')) {
-    if (!isLoggedIn()) {
-        echo json_encode(['success' => false, 'message' => 'You must be logged in to perform this action.']);
-        exit;
-    }
+// Order status announcements (accepted / declined)
+$orderAnnouncements = [];
+if (isLoggedIn()) {
+    $stmt = $pdo->prepare("
+        SELECT order_id, status, created_at
+        FROM orders
+        WHERE user_id = ?
+          AND status IN ('accepted','declined')
+          AND notified = 0
+        ORDER BY created_at DESC
+    ");
+    $stmt->execute([getCurrentUserId()]);
+    $orderAnnouncements = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Handle order purchase
-    if ($_POST['action'] === 'purchase') {
-        $userId = getCurrentUserId();
-
-        // Assuming you have cart data in POST or session
-        $cart = $_POST['cart'] ?? [];
-        if (empty($cart)) {
-            echo json_encode(['success' => false, 'message' => 'Your cart is empty.']);
-            exit;
-        }
-
-        $totalPrice = 0;
-        foreach ($cart as $item) {
-            $totalPrice += $item['price'] * $item['quantity'];
-        }
-
-        // Insert order into database with 'source' column
-        $stmt = $pdo->prepare("INSERT INTO orders (user_id, products, total_price, status, source) 
-                               VALUES (:user_id, :products, :total_price, 'pending', 'shop')");
-        $stmt->execute([
-            ':user_id' => $userId,
-            ':products' => json_encode($cart),
-            ':total_price' => $totalPrice
-        ]);
-
-        echo json_encode(['success' => true, 'message' => 'Order placed successfully.']);
-        exit;
-    }
-
-    // --- Existing announcements code ---
-    $orderAnnouncements = [];
-    if (isLoggedIn()) {
-        // Fetch orders of the current user with status 'accepted' or 'declined' that haven't been shown yet
-        $stmt = $pdo->prepare("SELECT order_id, status, created_at FROM orders 
-                               WHERE user_id=? AND status IN ('accepted','declined') 
-                               AND notified=0 ORDER BY created_at DESC");
-        $stmt->execute([getCurrentUserId()]);
-        $orderAnnouncements = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Optionally, mark them as notified so they won't show again
-        if(!empty($orderAnnouncements)){
-            $ids = array_column($orderAnnouncements, 'order_id');
-            $in = str_repeat('?,', count($ids)-1) . '?';
-            $stmt = $pdo->prepare("UPDATE orders SET notified=1 WHERE order_id IN ($in)");
-            $stmt->execute($ids);
-        }
+    if (!empty($orderAnnouncements)) {
+        $ids = array_column($orderAnnouncements, 'order_id');
+        $in  = str_repeat('?,', count($ids) - 1) . '?';
+        $stmt = $pdo->prepare("UPDATE orders SET notified = 1 WHERE order_id IN ($in)");
+        $stmt->execute($ids);
     }
 }
 ?>
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <title>Products</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet"/>
-    <title>Products</title>
     <style>
         .nav-welcome { color: #333; padding: 0 10px; font-size: 15px; }
         .product-description { font-size: 14px; color: #555; margin: 5px 0; }
@@ -81,17 +48,18 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
 <body>
 <header>
     <?php if (!empty($orderAnnouncements)): ?>
-    <div class="order-announcement" style="background:#f1f1f1; border-left:5px solid #4CAF50; padding:15px; margin:10px 20px; border-radius:5px;">
-        <?php foreach($orderAnnouncements as $o): ?>
-            <p>
-                Your order #<?= $o['order_id'] ?> has been 
-                <strong style="color:<?= $o['status']=='accepted'?'green':'red' ?>;">
-                    <?= ucfirst($o['status']) ?>
-                </strong>.
-            </p>
-        <?php endforeach; ?>
-    </div>
-<?php endif; ?>
+        <div class="order-announcement" style="background:#f1f1f1; border-left:5px solid #4CAF50; padding:15px; margin:10px 20px; border-radius:5px;">
+            <?php foreach($orderAnnouncements as $o): ?>
+                <p>
+                    Your order #<?= (int)$o['order_id'] ?> has been
+                    <strong style="color:<?= $o['status']=='accepted' ? 'green' : 'red' ?>;">
+                        <?= ucfirst(clean($o['status'])) ?>
+                    </strong>.
+                </p>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
     <a href="home.php" class="logo">Thoto & Nene Fresh Live Tilapia and Bangus</a>
     <div class="hamburger" id="hamburger">
         <span></span><span></span><span></span>
@@ -104,7 +72,7 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
         <a href="contact.php">Contact Us</a>
 
         <?php if (isLoggedIn()): ?>
-            <span class="nav-welcome">Welcome, <strong><?php echo clean(getCurrentUsername()); ?></strong></span>
+            <span class="nav-welcome">Welcome, <strong><?= clean(getCurrentUsername()); ?></strong></span>
             <a href="profile.php" class="profile-link">Profile</a>
             <a href="logout_process.php" style="color:#ff4444;">Logout</a>
         <?php else: ?>
@@ -115,7 +83,7 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
 
     <div id="cart-icon">
         <i class="ri-shopping-bag-line"></i>
-        <span class="cart-item-count"><?php echo $cartCount > 0 ? $cartCount : ''; ?></span>
+        <span class="cart-item-count"><?= $cartCount > 0 ? (int)$cartCount : ''; ?></span>
     </div>
 </header>
 
@@ -142,16 +110,16 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
             </div>
         <?php else: ?>
             <?php foreach ($products as $product): ?>
-                <div class="product-box" data-product-id="<?php echo $product['product_id']; ?>">
+                <div class="product-box" data-product-id="<?= (int)$product['product_id']; ?>">
                     <div class="img-box">
-                        <img src="<?php echo clean($product['image_url'] ?: 'images/placeholder.jpg'); ?>" 
-                             alt="<?php echo clean($product['product_name']); ?>">
+                        <img src="<?= clean($product['image_url'] ?: 'images/placeholder.jpg'); ?>"
+                             alt="<?= clean($product['product_name']); ?>">
                     </div>
-                    <h2 class="product-title"><?php echo clean($product['product_name']); ?></h2>
-                    <p class="product-description"><?php echo nl2br(clean($product['description'])); ?></p>
+                    <h2 class="product-title"><?= clean($product['product_name']); ?></h2>
+                    <p class="product-description"><?= nl2br(clean($product['description'])); ?></p>
                     <div class="price-and-cart">
-                        <p style="font-weight:600;">PHP<?php echo number_format($product['price'], 0); ?></p>
-                        <span class="price" style="display:none;"><?php echo $product['price']; ?></span>
+                        <p style="font-weight:600;">PHP<?= number_format($product['price'], 0); ?></p>
+                        <span class="price" style="display:none;"><?= $product['price']; ?></span>
                         <button class="add-cart" title="Add to cart">
                             <i class="ri-shopping-bag-line"></i>
                         </button>
@@ -162,19 +130,17 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
     </div>
 </section>
 
-<!-- Expose small APP object to the client-side JS -->
 <script>
 window.APP = {
-    isLoggedIn: <?php echo json_encode(isLoggedIn()); ?>,
-    userId: <?php echo json_encode(isLoggedIn() ? getCurrentUserId() : null); ?>
+    isLoggedIn: <?= json_encode(isLoggedIn()); ?>,
+    userId: <?= json_encode(isLoggedIn() ? getCurrentUserId() : null); ?>
 };
 </script>
-<script src="script.js"></script>
+<script src="script.js?v=<?= time(); ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.getElementById('hamburger');
     const nav = document.getElementById('navbar');
-
     hamburger.addEventListener('click', () => nav.classList.toggle('active'));
 });
 </script>

@@ -1,167 +1,27 @@
 <?php
-require_once '../config.php';
+// ...
 
-/**
- * Check if user is admin, redirect if not
- */
 function requireAdmin() {
-    if (!isAdmin()) {
+    if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
         header('Location: ../login.php');
         exit;
     }
 }
 
-/**
- * Add new product
- */
-function addProduct($categoryId, $productName, $description, $price, $stockQuantity, $imageUrl) {
-    global $conn;
-    
-    $stmt = $conn->prepare("INSERT INTO products (category_id, product_name, description, price, stock_quantity, image_url) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("issdis", $categoryId, $productName, $description, $price, $stockQuantity, $imageUrl);
-    
-    if ($stmt->execute()) {
-        return ['success' => true, 'message' => 'Product added successfully', 'product_id' => $conn->insert_id];
-    } else {
-        return ['success' => false, 'message' => 'Failed to add product: ' . $conn->error];
-    }
-}
-
-/**
- * Update product
- */
-function updateProduct($productId, $categoryId, $productName, $description, $price, $stockQuantity, $imageUrl = null) {
-    global $conn;
-    
-    if ($imageUrl) {
-        $stmt = $conn->prepare("UPDATE products SET category_id = ?, product_name = ?, description = ?, price = ?, stock_quantity = ?, image_url = ?, updated_at = CURRENT_TIMESTAMP WHERE product_id = ?");
-        $stmt->bind_param("issdiis", $categoryId, $productName, $description, $price, $stockQuantity, $imageUrl, $productId);
-    } else {
-        $stmt = $conn->prepare("UPDATE products SET category_id = ?, product_name = ?, description = ?, price = ?, stock_quantity = ?, updated_at = CURRENT_TIMESTAMP WHERE product_id = ?");
-        $stmt->bind_param("issdii", $categoryId, $productName, $description, $price, $stockQuantity, $productId);
-    }
-    
-    if ($stmt->execute()) {
-        return ['success' => true, 'message' => 'Product updated successfully'];
-    } else {
-        return ['success' => false, 'message' => 'Failed to update product: ' . $conn->error];
-    }
-}
-
-/**
- * Delete product (soft delete - set is_active to FALSE)
- */
-function deleteProduct($productId) {
-    global $conn;
-    
-    $stmt = $conn->prepare("UPDATE products SET is_active = FALSE WHERE product_id = ?");
-    $stmt->bind_param("i", $productId);
-    
-    if ($stmt->execute()) {
-        return ['success' => true, 'message' => 'Product deleted successfully'];
-    } else {
-        return ['success' => false, 'message' => 'Failed to delete product: ' . $conn->error];
-    }
-}
-/*
-* Restore product
-*/
-function restoreProduct($productId) {
-    global $conn;
-    
-    $stmt = $conn->prepare("UPDATE products SET is_active = TRUE WHERE product_id = ?");
-    $stmt->bind_param("i", $productId);
-    
-    if ($stmt->execute()) {
-        return ['success' => true, 'message' => 'Product restored successfully'];
-    } else {
-        return ['success' => false, 'message' => 'Failed to restore product: ' . $conn->error];
-    }
-}
-/**
- * Get all products (including inactive for admin)
- */
-function getAllProductsAdmin() {
-    global $conn;
-    
-    $sql = "SELECT p.*, c.category_name 
-            FROM products p 
-            LEFT JOIN categories c ON p.category_id = c.category_id 
-            WHERE p.is_active = TRUE
-            ORDER BY p.created_at DESC";
-    
-    $result = $conn->query($sql);
-    
-    $products = [];
-    while ($row = $result->fetch_assoc()) {
-        $products[] = $row;
-    }
-    
-    return $products;
-}
-
-/**
- * Handle image upload
- */
-function uploadProductImage($file) {
-    $targetDir = "uploads/";
-    $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
-    $maxSize = 5 * 1024 * 1024; // 5MB
-    
-    // Check if file was uploaded
-    if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) {
-        return ['success' => false, 'message' => 'No file uploaded or upload error'];
-    }
-    
-    // Check file size
-    if ($file['size'] > $maxSize) {
-        return ['success' => false, 'message' => 'File too large. Maximum size is 5MB'];
-    }
-    
-    // Check file type
-    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimeType = finfo_file($finfo, $file['tmp_name']);
-    finfo_close($finfo);
-    
-    if (!in_array($mimeType, $allowedTypes)) {
-        return ['success' => false, 'message' => 'Invalid file type. Only JPG, PNG, and GIF allowed'];
-    }
-    
-    // Generate unique filename
-    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-    $filename = 'product_' . uniqid() . '_' . time() . '.' . $extension;
-    $targetPath = $targetDir . $filename;
-    
-    // Create uploads directory if it doesn't exist
-    if (!is_dir($targetDir)) {
-        mkdir($targetDir, 0755, true);
-    }
-    
-    // Move uploaded file
-    if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-        return ['success' => true, 'filepath' => $targetPath];
-    } else {
-        return ['success' => false, 'message' => 'Failed to save uploaded file'];
-    }
-}
- 
-/**
- * Dashboard Stats
- */
 function getDashboardStats() {
-    global $conn;
-    $stats = [];
+    global $pdo;
 
-    $stats['total_products'] = $conn->query("SELECT COUNT(*) FROM products")->fetch_row()[0];
-    $stats['total_users'] = $conn->query("SELECT COUNT(*) FROM users")->fetch_row()[0];
-    $stats['total_orders'] = $conn->query("SELECT COUNT(*) FROM orders")->fetch_row()[0];
-    $stats['total_revenue'] = $conn->query("SELECT IFNULL(SUM(total_amount),0) FROM orders WHERE status='accepted'")->fetch_row()[0];
-    $stats['low_stock'] = $conn->query("SELECT COUNT(*) FROM products WHERE stock_quantity <= 5")->fetch_row()[0];
-    $stats['pending_orders'] = $conn->query("SELECT COUNT(*) FROM orders WHERE status='pending'")->fetch_row()[0];
+    $totalProducts = $pdo->query("SELECT COUNT(*) FROM products WHERE is_active = 1")->fetchColumn();
+    $totalUsers    = $pdo->query("SELECT COUNT(*) FROM users WHERE user_type != 'admin'")->fetchColumn();
+    $totalOrders   = $pdo->query("SELECT COUNT(*) FROM orders")->fetchColumn();
+    $totalRevenue  = $pdo->query("SELECT COALESCE(SUM(total_amount),0) FROM orders WHERE status = 'completed'")->fetchColumn();
+    $lowStock      = $pdo->query("SELECT COUNT(*) FROM products WHERE stock_quantity <= 5 AND is_active = 1")->fetchColumn();
 
-    return $stats;
+    return [
+        'total_products' => (int)$totalProducts,
+        'total_users'    => (int)$totalUsers,
+        'total_orders'   => (int)$totalOrders,
+        'total_revenue'  => (float)$totalRevenue,
+        'low_stock'      => (int)$lowStock,
+    ];
 }
-
-
-
-?>

@@ -129,6 +129,32 @@ function logoutUser() {
  * @param int $categoryId (optional) Filter by category
  * @return array of products
  */
+function createOrder($userId, $cartItems) {
+    global $pdo;
+
+    if (empty($cartItems)) {
+        return false;
+    }
+
+    // Compute total price
+    $totalPrice = 0;
+    foreach ($cartItems as $item) {
+        $totalPrice += $item['price'] * $item['quantity'];
+    }
+
+    // Insert order
+    $stmt = $pdo->prepare("
+        INSERT INTO orders (user_id, products, total_price, status, source, notified)
+        VALUES (:user_id, :products, :total_price, 'pending', 'shop', 0)
+    ");
+    $stmt->execute([
+        ':user_id'     => $userId,
+        ':products'    => json_encode($cartItems),
+        ':total_price' => $totalPrice
+    ]);
+
+    return $pdo->lastInsertId();
+}
 function getProducts($categoryId = null) {
     global $conn;
     
