@@ -4,9 +4,6 @@
 require_once dirname(__DIR__) . '/config.php';
 require_once dirname(__DIR__) . '/functions.php';
 
-/**
- * Ensure the user is logged in AND is admin.
- */
 function requireAdmin()
 {
     if (empty($_SESSION['user_id']) || ($_SESSION['user_type'] ?? '') !== 'admin') {
@@ -14,14 +11,8 @@ function requireAdmin()
         exit;
     }
 }
-
-/**
- * Upload product image into /uploads and return relative path.
- * Returns: ['success' => bool, 'path' => 'uploads/xxx.jpg', 'message' => string]
- */
 function uploadProductImage(array $file): array
 {
-    // Root /uploads directory
     $targetDir = dirname(__DIR__) . '/uploads/';
 
     if (!file_exists($targetDir)) {
