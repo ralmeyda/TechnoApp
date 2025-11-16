@@ -144,38 +144,6 @@ function uploadProductImage($file) {
         return ['success' => false, 'message' => 'Failed to save uploaded file'];
     }
 }
-
-/**
- * Get dashboard statistics BALIK PAG MAY ERROR AFTER GAWIN
- */
-/**function getDashboardStats() {
-    global $conn;
-    
-    $stats = [];
-    
-    // Total products
-    $result = $conn->query("SELECT COUNT(*) as count FROM products WHERE is_active = TRUE");
-    $stats['total_products'] = $result->fetch_assoc()['count'];
-    
-    // Total users
-    $result = $conn->query("SELECT COUNT(*) as count FROM users WHERE user_type = 'customer'");
-    $stats['total_users'] = $result->fetch_assoc()['count'];
-    
-    // Total orders
-    $result = $conn->query("SELECT COUNT(*) as count FROM orders");
-    $stats['total_orders'] = $result->fetch_assoc()['count'];
-    
-    // Total revenue
-    $result = $conn->query("SELECT SUM(total_amount) as revenue FROM orders WHERE order_status != 'cancelled'");
-    $row = $result->fetch_assoc();
-    $stats['total_revenue'] = $row['revenue'] ?? 0;
-    
-    // Low stock products
-    $result = $conn->query("SELECT COUNT(*) as count FROM products WHERE stock_quantity < 5 AND is_active = TRUE");
-    $stats['low_stock'] = $result->fetch_assoc()['count'];
-    
-    return $stats;
-}
  
 /**
  * Dashboard Stats

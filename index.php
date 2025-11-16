@@ -54,6 +54,14 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
     });
 });
 </script>
+
+    <style>
+        .nav-welcome {
+            color: #333;
+            padding: 0 10px;
+            font-size: 15px;
+        }
+    </style>
     </head>
     <body>
         <header>
@@ -70,11 +78,13 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
             <a href="index.php">Products</a>
             <a href="about.php">About Us</a>
             <a href="contact.php">Contact Us</a>
-            
+
             <?php if (isLoggedIn()): ?>
+                <span class="nav-welcome">Welcome, 
+                    <strong><?php echo clean(getCurrentUsername()); ?></strong>
+                </span>
                 <a href="profile.php" class="profile-link">Profile</a>
-                <span style="color: #333;">Welcome, <strong><?php echo clean(getCurrentUsername()); ?></strong></span>
-                <a href="logout_process.php" style="color: #ff4444;">Logout</a>
+                <a href="logout_process.php" class="logout-link" style="color:#ff4444;">Logout</a>
             <?php else: ?>
                 <a href="login.php" class="login-link">Login</a>
                 <a href="register.php" class="register-link">Register</a>
