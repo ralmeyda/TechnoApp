@@ -30,7 +30,7 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
     </head>
     <body>
         <header>
-        <a href="home.php" class="logo">CYCRIDE</a>
+        <a href="home.php" class="logo">Thoto & Nene Fresh Live Tilapia and Bangus</a>
         
         <div class="hamburger" id="hamburger">
             <span></span>
@@ -65,24 +65,31 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
                 <?php else: ?>
                     <?php foreach ($products as $product): ?>
                         <div class="product-box" data-product-id="<?php echo $product['product_id']; ?>">
-                            <div class="img-box">
                                 <?php
-                                $imagePath = '../' . $product['image_url'];
-                                ?>
-                                <?php if ($product['image_url'] && file_exists($imagePath)): ?>
-                                    <img src="<?php echo clean($imagePath); ?>" 
-                                        alt="<?php echo clean($product['product_name']); ?>">
-                                <?php else: ?>
-                                    <img src="../images/placeholder.jpg" alt="No image" 
-                                        style="background: #f0f0f0;">
-                                <?php endif; ?>
-                            </div>
-                            <h2 class="product-title"><?php echo clean($product['product_name']); ?></h2>
-                            <div class="price-and-cart">
-                                <p style="font-weight:600;">PHP<?php echo number_format($product['price'], 0); ?>/kg</p>
-                                <span class="price" style="visibility:hidden;"><?php echo $product['price']; ?></span>
-                            </div>
-                        </div>
+                <div class="product-row">
+                    <div class="img-box">
+                        <?php $imagePath = '../' . $product['image_url']; ?>
+                        <?php if ($product['image_url'] && file_exists($imagePath)): ?>
+                            <img src="<?php echo clean($imagePath); ?>" 
+                                alt="<?php echo clean($product['product_name']); ?>">
+                        <?php else: ?>
+                            <img src="../images/placeholder.jpg" alt="No image">
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="product-info">
+                        <h2 class="product-title"><?php echo clean($product['product_name']); ?></h2>
+
+                        <p class="product-description">
+                            <?php echo nl2br(clean($product['description'])); ?>
+                        </p>
+
+                        <p class="price-text">
+                            PHP <?php echo number_format($product['price'], 0); ?>/kg
+                        </p>
+                    </div>
+                </div>
+            </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>

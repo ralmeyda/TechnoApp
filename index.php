@@ -122,22 +122,31 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
                 <?php else: ?>
                     <?php foreach ($products as $product): ?>
                         <div class="product-box" data-product-id="<?php echo $product['product_id']; ?>">
-                            <div class="img-box">
-                                <?php if ($product['image_url'] && file_exists($product['image_url'])): ?>
-                                    <img src="<?php echo clean($product['image_url']); ?>" 
-                                         alt="<?php echo clean($product['product_name']); ?>">
-                                <?php else: ?>
-                                    <img src="images/placeholder.jpg" alt="No image" 
-                                         style="background: #f0f0f0;">
-                                <?php endif; ?>
-                            </div>
-                            <h2 class="product-title"><?php echo clean($product['product_name']); ?></h2>
-                            <div class="price-and-cart">
-                                <p style="font-weight:600;">PHP<?php echo number_format($product['price'], 0); ?>/kg</p>
-                                <span class="price" style="visibility:hidden;"><?php echo $product['price']; ?></span>
-                                <i class="ri-shopping-bag-line add-cart" 
-                                   data-product-id="<?php echo $product['product_id']; ?>"
-                                   title="Add to cart"></i>
+                            <div class="product-row">
+                                <div class="img-box">
+                                    <?php if ($product['image_url'] && file_exists($product['image_url'])): ?>
+                                        <img src="<?php echo clean($product['image_url']); ?>" 
+                                            alt="<?php echo clean($product['product_name']); ?>">
+                                    <?php else: ?>
+                                        <img src="images/placeholder.jpg" alt="No image" style="background:#f0f0f0;">
+                                    <?php endif; ?>
+                                </div>
+
+                                <div class="product-info">
+                                    <h2 class="product-title"><?php echo clean($product['product_name']); ?></h2>
+
+                                    <p class="product-description">
+                                        <?php echo nl2br(clean($product['description'])); ?>
+                                    </p>
+
+                                    <div class="price-and-cart">
+                                        <p class="price-text">PHP<?php echo number_format($product['price'], 0); ?>/kg</p>
+
+                                        <i class="ri-shopping-bag-line add-cart"
+                                        data-product-id="<?php echo $product['product_id']; ?>"
+                                        title="Add to cart"></i>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     <?php endforeach; ?>
