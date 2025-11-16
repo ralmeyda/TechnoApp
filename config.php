@@ -2,44 +2,49 @@
 // Database configuration
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
-define('DB_PASS', ''); // Empty for XAMPP default
+define('DB_PASS', ''); // XAMPP default
 define('DB_NAME', 'fishda');
+define('DB_CHARSET', 'utf8mb4'); // charset
 
-// Create connection
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+// PDO Connection
+$dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
+$options = [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+];
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+try {
+    $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+} catch (\PDOException $e) {
+    die("PDO Connection failed: " . $e->getMessage());
 }
 
-// Set charset to UTF-8
-$conn->set_charset("utf8mb4");
+// MySQLi connection (optional if you still use $conn somewhere)
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+if ($conn->connect_error) {
+    die("MySQLi Connection failed: " . $conn->connect_error);
+}
+$conn->set_charset(DB_CHARSET);
 
-// Start PHP session (stored in server files, NOT in database)
+// Start PHP session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Helper function to check if user is logged in
+// Helper functions
 function isLoggedIn() {
     return isset($_SESSION['user_id']) && isset($_SESSION['username']);
 }
 
-// Helper function to check if user is admin
 function isAdmin() {
     return isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'admin';
 }
 
-// Helper function to get current user ID
 function getCurrentUserId() {
     return $_SESSION['user_id'] ?? null;
 }
 
-// Helper function to get current username
 function getCurrentUsername() {
     return $_SESSION['username'] ?? null;
 }
-
-
 ?>

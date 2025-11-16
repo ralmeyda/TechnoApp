@@ -486,3 +486,9 @@ a:hover{
   opacity: 1;
   pointer-events: auto;
 }
+
+/* Order Announcement */
+.order-announcement p {
+    margin: 5px 0;
+    font-size: 14px;
+}

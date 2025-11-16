@@ -152,11 +152,13 @@ $username = $_SESSION['username'] ?? 'Admin';
                 <h3><?php echo $stats['total_users']; ?></h3>
                 <p>Total Customers</p>
             </div>
-            <div class="stat-card">
-                <i class="ri-file-list-line" style="color: #2ecc71;"></i>
-                <h3><?php echo $stats['total_orders']; ?></h3>
-                <p>Total Orders</p>
-            </div>
+            <a href="admin_orders.php" class="stat-card-link">
+                <div class="stat-card">
+                    <i class="ri-file-list-line" style="color: #2ecc71;"></i>
+                    <h3><?php echo $stats['total_orders']; ?></h3>
+                    <p>Orders</p>
+                </div>
+            </a>
             <div class="stat-card">
                 <i class="ri-money-dollar-circle-line" style="color: #f39c12;"></i>
                 <h3>₱<?php echo number_format($stats['total_revenue'], 2); ?></h3>
