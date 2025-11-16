@@ -14,7 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Add to cart
   document.querySelectorAll(".add-cart").forEach(button => {
     button.addEventListener("click", e => {
-      const isLoggedIn = <?php echo json_encode(isLoggedIn()); ?>;
+      // Use global flag set in index.php
+      const isLoggedIn = window.APP && window.APP.isLoggedIn;
       if (!isLoggedIn) {
         alert("Please log in before adding items to your cart.");
         window.location.href = "login.php";
@@ -26,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const title = productBox.querySelector(".product-title").textContent;
       const price = parseFloat(productBox.querySelector(".price").textContent);
       const imgSrc = productBox.querySelector("img").src;
+      const productId = productBox.dataset.productId || null;
 
       // Prevent duplicate
       if ([...cartContent.querySelectorAll(".cart-product-title")].some(el => el.textContent === title)) {
@@ -36,6 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Create cart item
       const cartBox = document.createElement("div");
       cartBox.classList.add("cart-box");
+      cartBox.dataset.productId = productId;
       cartBox.innerHTML = `
         <img src="${imgSrc}" class="cart-img">
         <div class="cart-detail">
@@ -106,16 +109,69 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector(".total-price").textContent = `PHP${total.toFixed(2)}`;
   }
 
+  // Build cart data for server
+  function buildCartData() {
+    const items = [];
+    cartContent.querySelectorAll('.cart-box').forEach(box => {
+      items.push({
+        product_id: box.dataset.productId || null,
+        name: box.querySelector('.cart-product-title').textContent,
+        price: parseFloat(box.querySelector('.cart-price').textContent),
+        quantity: parseInt(box.querySelector('.number').textContent)
+      });
+    });
+    return items;
+  }
+
+  // Send purchase to server
+  async function sendPurchase(cartData) {
+    try {
+      const form = new FormData();
+      form.append('action', 'purchase');
+      form.append('cart', JSON.stringify(cartData));
+
+      const resp = await fetch('index.php', {
+        method: 'POST',
+        body: form,
+        credentials: 'same-origin'
+      });
+      const json = await resp.json();
+      return json;
+    } catch (err) {
+      return { success: false, message: 'Network error' };
+    }
+  }
+
   // Buy now
-  buyNowButton.addEventListener("click", () => {
-    if (cartContent.children.length === 0) {
+  buyNowButton.addEventListener("click", async () => {
+    if (!window.APP || !window.APP.isLoggedIn) {
+      alert('Please log in to complete your purchase.');
+      window.location.href = 'login.php';
+      return;
+    }
+
+    const cartData = buildCartData();
+    if (cartData.length === 0) {
       alert("Your cart is empty!");
       return;
     }
-    cartContent.innerHTML = "";
-    cartItemCount = 0;
-    updateCount(0);
-    updateTotal();
-    alert("Thank you for your purchase!");
+
+    buyNowButton.disabled = true;
+    buyNowButton.textContent = 'Processing...';
+
+    const result = await sendPurchase(cartData);
+    buyNowButton.disabled = false;
+    buyNowButton.textContent = 'Buy Now';
+
+    if (result && result.success) {
+      alert(result.message || 'Order placed successfully');
+      // clear cart
+      cartContent.innerHTML = '';
+      cartItemCount = 0;
+      updateCount(0);
+      updateTotal();
+    } else {
+      alert(result.message || 'Failed to place order');
+    }
   });
 });

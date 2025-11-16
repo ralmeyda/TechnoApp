@@ -162,6 +162,13 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
     </div>
 </section>
 
+<!-- Expose small APP object to the client-side JS -->
+<script>
+window.APP = {
+    isLoggedIn: <?php echo json_encode(isLoggedIn()); ?>,
+    userId: <?php echo json_encode(isLoggedIn() ? getCurrentUserId() : null); ?>
+};
+</script>
 <script src="script.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
