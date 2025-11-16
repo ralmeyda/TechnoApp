@@ -10,7 +10,7 @@
     </head>
     <body>
         <header>
-        <a href="dashboard.php" class="logo">CYCRIDE</a>
+        <a href="dashboard.php" class="logo">Thoto & Nene Fresh Live Tilapia and Bangus</a>
         <nav class="navbar" id="navbar">
             <a href="dashboard.php">Home</a>
             <a href="addproduct.php">Add Product</a>

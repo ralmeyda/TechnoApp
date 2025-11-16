@@ -10,7 +10,7 @@ if (isLoggedIn()) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Register - CYCRIDE</title>
+    <title>Register</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
 </head>

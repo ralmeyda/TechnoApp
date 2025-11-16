@@ -24,7 +24,7 @@ if (isset($_GET['added'])) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Manage Products - CYCRIDE Admin</title>
+    <title>Manage Products - Admin</title>
     <link rel="stylesheet" href="../style.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
     <style>

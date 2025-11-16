@@ -9,7 +9,7 @@ $result = $conn->query("SELECT * FROM notifications WHERE user_id=$userId ORDER 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Notifications - CYCRIDE</title>
+    <title>Notifications</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>

@@ -17,7 +17,7 @@ $username = $_SESSION['username'] ?? 'Admin';
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin Dashboard - CYCRIDE</title>
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" href="../style.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
     <style>
