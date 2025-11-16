@@ -17,6 +17,23 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
         echo json_encode(['success' => false, 'message' => 'You must be logged in to perform this action.']);
         exit;
     }
+$orderAnnouncements = [];
+if (isLoggedIn()) {
+    // Fetch orders of the current user with status 'accepted' or 'declined' that haven't been shown yet
+    $stmt = $pdo->prepare("SELECT order_id, status, created_at FROM orders 
+                           WHERE user_id=? AND status IN ('accepted','declined') 
+                           AND notified=0 ORDER BY created_at DESC");
+    $stmt->execute([getCurrentUserId()]);
+    $orderAnnouncements = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Optionally, mark them as notified so they won't show again
+    if(!empty($orderAnnouncements)){
+        $ids = array_column($orderAnnouncements, 'order_id');
+        $in = str_repeat('?,', count($ids)-1) . '?';
+        $stmt = $pdo->prepare("UPDATE orders SET notified=1 WHERE order_id IN ($in)");
+        $stmt->execute($ids);
+    }
+}
 }
 ?>
 <!DOCTYPE html>
@@ -32,6 +49,18 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
 </head>
 <body>
 <header>
+    <?php if (!empty($orderAnnouncements)): ?>
+    <div class="order-announcement" style="background:#f1f1f1; border-left:5px solid #4CAF50; padding:15px; margin:10px 20px; border-radius:5px;">
+        <?php foreach($orderAnnouncements as $o): ?>
+            <p>
+                Your order #<?= $o['order_id'] ?> has been 
+                <strong style="color:<?= $o['status']=='accepted'?'green':'red' ?>;">
+                    <?= ucfirst($o['status']) ?>
+                </strong>.
+            </p>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
     <a href="home.php" class="logo">Thoto & Nene Fresh Live Tilapia and Bangus</a>
     <div class="hamburger" id="hamburger">
         <span></span><span></span><span></span>
