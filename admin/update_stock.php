@@ -1,19 +1,23 @@
 <?php
+// admin/update_stock.php
 require_once '../config.php';
 require_once 'admin_functions.php';
+require_once '../functions.php';
 
 requireAdmin();
 
-$data = json_decode(file_get_contents('php://input'), true);
-$product_id = intval($data['product_id'] ?? 0);
-$new_stock = isset($data['stock']) ? intval($data['stock']) : null;
+header('Content-Type: application/json');
 
-if(!$product_id || $new_stock === null || $new_stock < 0){
-    echo json_encode(['success'=>false,'message'=>'Invalid request']);
+$data = json_decode(file_get_contents('php://input'), true);
+
+$productId = intval($data['product_id'] ?? 0);
+$stock     = intval($data['stock'] ?? -1);
+
+if ($productId <= 0 || $stock < 0) {
+    echo json_encode(['success' => false, 'message' => 'Invalid data']);
     exit;
 }
 
-$stmt = $pdo->prepare("UPDATE products SET stock_quantity=? WHERE product_id=?");
-$stmt->execute([$new_stock, $product_id]);
-
-echo json_encode(['success'=>true,'new_stock'=>$new_stock]);
+$result = updateProductStock($productId, $stock);
+echo json_encode($result);
+exit;

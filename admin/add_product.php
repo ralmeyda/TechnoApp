@@ -5,37 +5,43 @@ require_once '../functions.php';
 
 requireAdmin();
 
-$categories = getCategories();
-$message = '';
+$categories  = getCategories();
+$message     = '';
 $messageType = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $categoryId = intval($_POST['category_id']);
-    $productName = trim($_POST['product_name']);
-    $description = trim($_POST['description']);
-    $price = floatval($_POST['price']);
-    $stockQuantity = intval($_POST['stock_quantity']);
-    
-    // Handle image upload
+    $categoryId     = intval($_POST['category_id'] ?? 0);
+    $productName    = trim($_POST['product_name'] ?? '');
+    $description    = trim($_POST['description'] ?? '');
+    $price          = floatval($_POST['price'] ?? 0);
+    $stockQuantity  = intval($_POST['stock_quantity'] ?? 0);
+
     $imageUrl = '';
-    if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
-        $uploadResult = uploadProductImage($_FILES['product_image']);
-        if ($uploadResult['success']) {
-            // Store relative path from root
-            $imageUrl = 'admin/' . $uploadResult['filepath'];
+
+    // Handle image upload
+    if (!empty($_FILES['product_image']['name'])) {
+        $upload = uploadProductImage($_FILES['product_image']);
+
+        if ($upload['success']) {
+            $imageUrl = $upload['path'];   // uploads/xxxx.jpg
         } else {
-            $message = $uploadResult['message'];
+            $message = $upload['message'];
             $messageType = 'error';
         }
+    } else {
+        $message = "Please upload a product image.";
+        $messageType = 'error';
     }
-    
+
+    // If no errors, add product
     if (empty($message)) {
         $result = addProduct($categoryId, $productName, $description, $price, $stockQuantity, $imageUrl);
+
         if ($result['success']) {
             header('Location: manage_products.php?added=1');
             exit;
         } else {
-            $message = $result['message'];
+            $message     = $result['message'];
             $messageType = 'error';
         }
     }
@@ -47,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Add Product - Admin</title>
     <link rel="stylesheet" href="../style.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+
     <style>
         body { background: #f5f5f5; }
         .admin-container {
@@ -135,78 +142,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 13px;
         }
     </style>
+
 </head>
+
 <body>
     <header>
-        <a href="dashboard.php" class="logo">Thoto & Nene Fresh Live Tilapia and Bangus</a>
+        <a href="dashboard.php" class="logo">ADMIN</a>
         <nav class="navbar">
             <a href="dashboard.php">Dashboard</a>
             <a href="manage_products.php">Manage Products</a>
-            <a href="../logout_process.php" style="color: #ff4444;">Logout</a>
+            <a href="../logout_process.php" style="color:#ff4444;">Logout</a>
         </nav>
     </header>
 
     <div class="admin-container">
         <div class="form-card">
             <h1><i class="ri-add-line"></i> Add New Product</h1>
-            
+
             <?php if ($message): ?>
-                <div class="alert alert-<?php echo $messageType; ?>">
+                <div class="alert alert-<?php echo $messageType === 'error' ? 'error' : 'success'; ?>">
                     <?php echo clean($message); ?>
                 </div>
             <?php endif; ?>
 
             <form method="POST" enctype="multipart/form-data">
+
                 <div class="form-group">
-                    <label for="category_id">Category *</label>
-                    <select name="category_id" id="category_id" required>
+                    <label>Category *</label>
+                    <select name="category_id" required>
                         <option value="">Select Category</option>
-                        <?php foreach ($categories as $category): ?>
-                            <option value="<?php echo $category['category_id']; ?>">
-                                <?php echo clean($category['category_name']); ?>
+
+                        <?php foreach ($categories as $cat): ?>
+                            <option value="<?php echo $cat['category_id']; ?>">
+                                <?php echo clean($cat['category_name']); ?>
                             </option>
                         <?php endforeach; ?>
+
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="product_name">Product Name *</label>
-                    <input type="text" name="product_name" id="product_name" required 
-                           placeholder="e.g., Bangus">
+                    <label>Product Name *</label>
+                    <input type="text" name="product_name" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="description">Description</label>
-                    <textarea name="description" id="description" 
-                              placeholder="Product description, features, specifications..."></textarea>
+                    <label>Description</label>
+                    <textarea name="description"></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label for="price">Price (PHP) (kg)* </label>
-                    <input type="number" name="price" id="price" step="0.01" min="0" required 
-                           placeholder="15000.00">
+                    <label>Price (PHP/kg) *</label>
+                    <input type="number" step="0.01" name="price" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="stock_quantity">Stock Quantity (kg)* </label>
-                    <input type="number" name="stock_quantity" id="stock_quantity" min="0" required 
-                           placeholder="10">
+                    <label>Stock (kg) *</label>
+                    <input type="number" name="stock_quantity" min="0" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="product_image">Product Image *</label>
-                    <input type="file" name="product_image" id="product_image" 
-                           accept="image/jpeg,image/png,image/jpg,image/gif" required>
-                    <small>Max size: 5MB. Formats: JPG, PNG, GIF</small>
+                    <label>Product Image *</label>
+                    <input type="file" name="product_image" accept="image/*" required>
                 </div>
-
-                <button type="submit" class="btn-primary">
-                    <i class="ri-save-line"></i> Add Product
-                </button>
-                
-                <a href="manage_products.php" class="btn-secondary">
-                    <i class="ri-arrow-left-line"></i> Back to Products
-                </a>
+                <button type="submit" class="btn-primary">Save Product</button>
             </form>
         </div>
     </div>
