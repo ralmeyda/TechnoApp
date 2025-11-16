@@ -65,7 +65,6 @@ if (isset($_POST['action']) && ($_POST['action'] === 'add_to_cart' || $_POST['ac
                 <?php else: ?>
                     <?php foreach ($products as $product): ?>
                         <div class="product-box" data-product-id="<?php echo $product['product_id']; ?>">
-                                <?php
                 <div class="product-row">
                     <div class="img-box">
                         <?php $imagePath = '../' . $product['image_url']; ?>
