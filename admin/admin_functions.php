@@ -25,3 +25,17 @@ function getDashboardStats() {
         'low_stock'      => (int)$lowStock,
     ];
 }
+function getAllProductsAdmin() {
+    global $pdo;
+
+    $stmt = $pdo->query("
+        SELECT p.product_id, p.product_name, p.price, p.stock_quantity,
+       p.is_active, p.image_url, c.category_name
+        FROM products p
+        LEFT JOIN categories c ON p.category_id = c.category_id
+        WHERE p.is_active = 1
+        ORDER BY p.product_id DESC
+    ");
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
