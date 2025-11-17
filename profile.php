@@ -1,3 +1,28 @@
+<?php
+require_once 'config.php';
+require_once 'functions.php';
+
+// Check if user is logged in
+if (!isLoggedIn()) {
+    header('Location: login.php');
+    exit;
+}
+
+// Get user data from session
+$userId = $_SESSION['user_id'] ?? null;
+$username = $_SESSION['username'] ?? null;
+$email = $_SESSION['email'] ?? null;
+$firstName = $_SESSION['first_name'] ?? null;
+$lastName = $_SESSION['last_name'] ?? null;
+
+// Fetch additional user data from database including phone
+$stmt = $conn->prepare("SELECT phone FROM users WHERE user_id = ?");
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$result = $stmt->get_result();
+$userRow = $result->fetch_assoc();
+$phone = $userRow['phone'] ?? '';
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -32,27 +57,19 @@
     <div class="form-container">
         <h2>User Profile</h2>
         <div id="userProfile">
-            <!-- User details will be displayed here -->
+            <p><strong>First Name:</strong> <?php echo htmlspecialchars($firstName); ?></p>
+            <p><strong>Last Name:</strong> <?php echo htmlspecialchars($lastName); ?></p>
+            <p><strong>Phone Number:</strong> <?php echo htmlspecialchars($phone); ?></p>
+            <p><strong>Email Address:</strong> <?php echo htmlspecialchars($email); ?></p>
+            <p><strong>Username:</strong> <?php echo htmlspecialchars($username); ?></p>
+            <div style="margin-top: 20px;">
+                <a href="logout_process.php" style="background-color: #e74c3c; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Logout</a>
+            </div>
         </div>
     </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const userProfileDiv = document.getElementById("userProfile");
-            const userData = JSON.parse(localStorage.getItem("userData"));
-
-            if (userData) {
-                userProfileDiv.innerHTML = `
-                    <p><strong>First Name:</strong> ${userData.firstName}</p>
-                    <p><strong>Last Name:</strong> ${userData.lastName}</p>
-                    <p><strong>Phone Number:</strong> ${userData.phone}</p>
-                    <p><strong>Email Address:</strong> ${userData.email}</p>
-                    <p><strong>Username:</strong> ${userData.username}</p>
-                `;
-            } else {
-                userProfileDiv.innerHTML = "<p>No user data found. Please <a href='register.html'>register</a>.</p>";
-            }
-
             const hamburger = document.getElementById('hamburger');
             const nav = document.getElementById('navbar');
             hamburger.addEventListener('click', () => {
