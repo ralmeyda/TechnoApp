@@ -1,31 +1,8 @@
 Task List:
 
-
-New: 
-Connect database admin panel for add, edit, delete products
-Add Products through admin panel
-UI clean up 
-Create use case description
-Create use case diagram
-Create 
-
-
-In Progress:
-Create admin panel admin.php
-
-
-
-Complete 
-File type clean up = Check
-Href file type clean up = Check
-Connect Database = Check
-Create Login/Registration with database = Check by MC
-
-
-
-Para hindi magulo, plain website (EMPTY PRODUCT) muna gawin natin.
-After maayos lahat doon nalang i-add mga products USING admin ADD PRODUCT. 
-Need lang CAUTION sa pwedeng apektado nung HTML or CSS changes.
-
-
-Thoto & Nene Fresh Live Tilapia and Bangus
+Fix Navigation Bar - Done but need some improvement when it comes to design, it must be consistent to all of the pages.
+Fix Stocks when approved and declined
+Fix hero image - must be smaller, or add a new image to make it look better.
+Fix profile data - Done
+Fix Contact Us, must be in footer
+Fix UI *
