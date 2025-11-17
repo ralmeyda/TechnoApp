@@ -127,15 +127,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   buyNowButton.addEventListener("click", async () => {
-    if (!window.APP || !window.APP.isLoggedIn) {
-      alert('Please log in to complete your purchase.');
-      window.location.href = 'login.php';
+    const cartData = buildCartData();
+    if (cartData.length === 0) {
+      alert("Your cart is empty! Please add products.");
+      window.location.href = 'index.php';
       return;
     }
 
-    const cartData = buildCartData();
-    if (cartData.length === 0) {
-      alert("Your cart is empty!");
+    if (!window.APP || !window.APP.isLoggedIn) {
+      alert('Please log in to complete your purchase.');
+      window.location.href = 'login.php';
       return;
     }
 

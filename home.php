@@ -1,3 +1,7 @@
+<?php
+require_once 'config.php';
+require_once 'functions.php';
+?>
 <!DOCTYPE html>
 <html>
     <head>
@@ -22,14 +26,34 @@
             <a href="index.php">Products</a>
             <a href="about.php">About Us</a>
             <a href="contact.php">Contact Us</a>
-            <a href="login.php" class="login-link">Login</a>
-            <a href="register.php" class="register-link">Register</a>
-            <a href="profile.php" class="profile-link" style="display: none;">Profile</a>
+            <?php if (isLoggedIn()): ?>
+                <span id="welcome-msg" class="nav-welcome">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></span>
+                <a href="profile.php" class="profile-link">Profile</a>
+                <a href="logout_process.php" class="logout-link">Logout</a>
+            <?php else: ?>
+                <a href="login.php" class="login-link">Login</a>
+                <a href="register.php" class="register-link">Register</a>
+            <?php endif; ?>
         </nav>
         
         <div id="cart-icon">
+            <i class="ri-shopping-bag-line"></i>
+            <span class="cart-item-count"></span>
         </div>
         </header>
+
+        <div class="cart">
+            <h2 class="cart-title">Your Cart</h2>
+            <div class="cart-content"></div>
+            <div class="total">
+                <div class="total-title">Total</div>
+                <div class="total-price">PHP0</div>
+            </div>
+            <button class="btn-buy">Buy Now</button>
+            <i class="ri-close-line" id="cart-close"></i>
+        </div>
+        <div id="cart-notification">Product added to cart!</div>
+
         <div class="hero-image" style="border-bottom:3px solid rgb(255, 40, 40);">
         </div>
         <h1 style="text-align:center; font-weight:600px; padding-top:35px;"> Products that we offer </h1>
@@ -42,6 +66,12 @@
         <a href="index.php" class="buy-now-btn">Buy Now</a>
         </div>
 
+        <script>
+        window.APP = {
+            isLoggedIn: <?= json_encode(isLoggedIn()); ?>,
+            userId: <?= json_encode(isLoggedIn() ? getCurrentUserId() : null); ?>
+        };
+        </script>
         <script src="script.js"></script>
         <script>
         document.addEventListener('DOMContentLoaded', () => {

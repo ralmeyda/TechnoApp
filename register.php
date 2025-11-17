@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once 'functions.php';
 
 // Redirect if already logged in
 if (isLoggedIn()) {
@@ -25,7 +26,17 @@ if (isLoggedIn()) {
         </div>
         <nav class="navbar" id="navbar">
             <a href="home.php">Home</a>
-            <a href="login.php" class="register-link">Login</a>
+            <a href="index.php">Products</a>
+            <a href="about.php">About Us</a>
+            <a href="contact.php">Contact Us</a>
+            <?php if (isLoggedIn()): ?>
+                <span id="welcome-msg" class="nav-welcome">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></span>
+                <a href="profile.php" class="profile-link">Profile</a>
+                <a href="logout_process.php" class="logout-link">Logout</a>
+            <?php else: ?>
+                <a href="login.php" class="login-link">Login</a>
+                <a href="register.php" class="register-link">Register</a>
+            <?php endif; ?>
         </nav>
     </header>
     

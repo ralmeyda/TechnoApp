@@ -31,7 +31,7 @@ header{
   background-position: center;
   background-repeat: no-repeat; 
   background-size: cover; 
-  
+
 }
 
 .column {
@@ -96,6 +96,22 @@ a:hover{
 .navbar a:hover {
   color: #e35f26;
   border-bottom: 2px solid red;
+}
+.nav-welcome {
+  color: #333;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+}
+.logout-link {
+  color: #e35f26;
+  font-weight: 500;
+  padding: 5px 10px;
+}
+.logout-link:hover {
+  color: #d84b1e;
+  border-bottom: 2px solid #e35f26;
 }
 #cart-icon{
     position: relative;
