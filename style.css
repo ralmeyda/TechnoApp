@@ -511,3 +511,29 @@ header a.logo:focus {
     margin: 5px 0;
     font-size: 14px;
 }
+
+/* Footer styles */
+.site-footer{
+    background:#222;
+    color:#eee;
+    padding:30px 9% 20px;
+    margin-top:40px;
+}
+.footer-inner{
+    display:flex;
+    gap:30px;
+    justify-content:space-between;
+    flex-wrap:wrap;
+}
+.footer-about{max-width:420px}
+.footer-about .footer-logo{font-weight:700;color:#fff;text-decoration:none;font-size:18px}
+.footer-links ul{list-style:none;padding:0;margin:0}
+.footer-links li{margin:6px 0}
+.footer-links a{color:#ddd;text-decoration:none}
+.footer-links a:hover{color:#fff}
+.footer-contact p{margin:6px 0;color:#ccc}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.06);margin-top:18px;padding-top:12px;text-align:center;color:#bbb}
+
+@media (max-width:768px){
+    .footer-inner{flex-direction:column;gap:18px}
+}

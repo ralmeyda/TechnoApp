@@ -82,6 +82,7 @@ Now, with increasing competition and the shift toward digital buying behaviors, 
             });
         });
         </script>
+        <?php include 'footer.php'; ?>
     </body>
 
 </html>

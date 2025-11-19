@@ -118,6 +118,7 @@ require_once 'functions.php';
             });
         });
         </script>
-    </body>
+        <?php include 'footer.php'; ?>
+      </body>
 
-</html>
+    </html>

@@ -77,5 +77,6 @@ $phone = $userRow['phone'] ?? '';
             });
         });
     </script>
+    <?php include 'footer.php'; ?>
 </body>
 </html>

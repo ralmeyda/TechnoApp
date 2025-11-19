@@ -47,18 +47,7 @@ if (isLoggedIn()) {
 </head>
 <body>
 <header>
-    <?php if (!empty($orderAnnouncements)): ?>
-        <div class="order-announcement" style="background:#f1f1f1; border-left:5px solid #4CAF50; padding:15px; margin:10px 20px; border-radius:5px;">
-            <?php foreach($orderAnnouncements as $o): ?>
-                <p>
-                    Your order #<?= (int)$o['order_id'] ?> has been
-                    <strong style="color:<?= $o['status']=='accepted' ? 'green' : 'red' ?>;">
-                        <?= ucfirst(clean($o['status'])) ?>
-                    </strong>.
-                </p>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
+
 
     <a href="home.php" class="logo">Thoto & Nene Fresh Live Tilapia and Bangus</a>
     <div class="hamburger" id="hamburger">
@@ -137,9 +126,12 @@ window.APP = {
 </script>
 <script src="script.js?v=<?= time(); ?>"></script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.getElementById('hamburger');
     const nav = document.getElementById('navbar');
+
+<?php include 'footer.php'; ?>
+</body>
+</html>
     hamburger.addEventListener('click', () => nav.classList.toggle('active'));
 });
 </script>

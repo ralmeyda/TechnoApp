@@ -116,5 +116,6 @@ if (isLoggedIn()) {
             });
         });
     </script>
+    <?php include 'footer.php'; ?>
 </body>
 </html>

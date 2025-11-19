@@ -80,6 +80,6 @@ require_once 'functions.php';
         });
     </script>
 
-        
+        <?php include 'footer.php'; ?>
     </body>
 </html>
