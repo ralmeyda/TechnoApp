@@ -38,6 +38,11 @@ if (isLoggedIn()) {
                 <a href="register.php" class="register-link">Register</a>
             <?php endif; ?>
         </nav>
+
+        <div id="cart-icon">
+            <i class="ri-shopping-bag-line"></i>
+            <span class="cart-item-count"></span>
+        </div>
     </header>
     
     <div class="form-container" style="margin-top: 120px;">

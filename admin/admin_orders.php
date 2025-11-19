@@ -5,17 +5,82 @@ require_once 'admin_functions.php';
 
 requireAdmin();
 
+// Ensure 'paid' and 'picked_up' columns exist in orders table (safe migration)
+try {
+    $colPaid = $pdo->query("SHOW COLUMNS FROM orders LIKE 'paid'")->fetch();
+    $colPicked = $pdo->query("SHOW COLUMNS FROM orders LIKE 'picked_up'")->fetch();
+    if (!$colPaid || !$colPicked) {
+        // add missing columns (both optional)
+        $alterSql = [];
+        if (!$colPaid) $alterSql[] = "ADD COLUMN paid TINYINT(1) NOT NULL DEFAULT 0";
+        if (!$colPicked) $alterSql[] = "ADD COLUMN picked_up TINYINT(1) NOT NULL DEFAULT 0";
+        if (!empty($alterSql)) {
+            $pdo->exec('ALTER TABLE orders ' . implode(', ', $alterSql));
+        }
+    }
+} catch (Exception $e) {
+    // ignore migration errors but log
+    error_log('MIGRATE ORDERS COLUMNS ERROR: ' . $e->getMessage());
+}
+
 // Handle accept/decline
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id'], $_POST['action'])) {
     $orderId = (int)$_POST['order_id'];
     $action  = $_POST['action'];
 
-    if (in_array($action, ['accepted','declined'], true)) {
+    if (!in_array($action, ['accepted','declined'], true)) {
+        // ignore unknown actions
+    } elseif ($action === 'accepted') {
+        try {
+            // Start transaction to validate and update stock atomically
+            $pdo->beginTransaction();
+
+            // Fetch order items with current stock
+            $itStmt = $pdo->prepare(
+                "SELECT oi.product_id, oi.quantity, p.stock_quantity, p.product_name
+                 FROM order_items oi
+                 JOIN products p ON p.product_id = oi.product_id
+                 WHERE oi.order_id = ?"
+            );
+            $itStmt->execute([$orderId]);
+            $orderItems = $itStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Validate stock availability
+            foreach ($orderItems as $it) {
+                if ((int)$it['stock_quantity'] < (int)$it['quantity']) {
+                    $pdo->rollBack();
+                    $message = "Cannot accept Order #{$orderId}: insufficient stock for '" . clean($it['product_name']) . "' (available: " . (int)$it['stock_quantity'] . ", required: " . (int)$it['quantity'] . ").";
+                    // Do not change status — admin must decide how to proceed
+                    goto _admin_orders_done;
+                }
+            }
+
+            // Decrement stock for each item
+            $decStmt = $pdo->prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE product_id = ?");
+            foreach ($orderItems as $it) {
+                $decStmt->execute([(int)$it['quantity'], (int)$it['product_id']]);
+            }
+
+            // Update order status to accepted
+            $uStmt = $pdo->prepare("UPDATE orders SET status = ?, notified = 0 WHERE order_id = ?");
+            $uStmt->execute(['accepted', $orderId]);
+
+            $pdo->commit();
+            $message = "Order #{$orderId} has been accepted and stock updated.";
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            error_log('ADMIN ACCEPT ERROR: ' . $e->getMessage());
+            $message = "Failed to accept order #{$orderId}. See logs.";
+        }
+    } elseif ($action === 'declined') {
+        // Simply mark declined; stock was not changed at purchase time
         $stmt = $pdo->prepare("UPDATE orders SET status = ?, notified = 0 WHERE order_id = ?");
-        $stmt->execute([$action, $orderId]);
-        $message = "Order #{$orderId} has been {$action}.";
+        $stmt->execute(['declined', $orderId]);
+        $message = "Order #{$orderId} has been declined.";
     }
 }
+
+_admin_orders_done:;
 
 // Fetch orders (non-admin users)
 $stmt = $pdo->query("
@@ -64,7 +129,7 @@ $itemStmt = $pdo->prepare("
     </nav>
 </header>
 
-<div class="admin-container">
+<div class="admin-container" style="margin-top: 80px; padding: 20px;">
     <h1>Customer Orders</h1>
 
     <?php if (!empty($message)): ?>
