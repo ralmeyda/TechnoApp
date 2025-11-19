@@ -41,7 +41,7 @@ require_once 'functions.php';
             <span class="cart-item-count"></span>
         </div>
         </header>
-        <div class="hero-image" style="border-bottom:3px solid rgb(255, 40, 40);">
+        <div class="hero-image" style="height:650px; width:100%; background-color:#cccccc; display:flex; justify-content:center; align-items:center; font-size:30px; font-weight:bold; color:#333;border-bottom:3px solid rgb(255, 40, 40);">
         </div>
         <h1 style="text-align:center; font-weight:600px; padding-top:35px;"> About Us  </h1>
         <section class="container">

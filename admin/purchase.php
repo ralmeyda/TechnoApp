@@ -59,15 +59,10 @@ try {
     $stmt->execute([$userId, $totalAmount]);
     $orderId = $pdo->lastInsertId();
 
-    // Insert items + update stock
+    // Insert items. Stock adjustment is deferred until admin accepts the order.
     $itemStmt = $pdo->prepare("
         INSERT INTO order_items (order_id, product_id, quantity, price)
         VALUES (?, ?, ?, ?)
-    ");
-    $stockStmt = $pdo->prepare("
-        UPDATE products
-        SET stock_quantity = stock_quantity - ?
-        WHERE product_id = ?
     ");
 
     foreach ($cartItems as $item) {
@@ -76,7 +71,6 @@ try {
         $price     = (float)$item['price'];
 
         $itemStmt->execute([$orderId, $productId, $qty, $price]);
-        $stockStmt->execute([$qty, $productId]);
     }
 
     $pdo->commit();

@@ -13,14 +13,12 @@ require_once 'functions.php';
     </head>
     <body>
         <header>
-        <a href="home.php" class="logo">Thoto & Nene Fresh Live Tilapia and Bangus</a>
-        
         <div class="hamburger" id="hamburger">
             <span></span>
             <span></span>
             <span></span>
         </div>
-
+        <a href="home.php" class="logo">Thoto & Nene Fresh Live Tilapia and Bangus</a>
         <nav class="navbar" id="navbar">
             <a href="home.php">Home</a>
             <a href="index.php">Products</a>
@@ -41,7 +39,6 @@ require_once 'functions.php';
             <span class="cart-item-count"></span>
         </div>
         </header>
-
         <div class="cart">
             <h2 class="cart-title">Your Cart</h2>
             <div class="cart-content"></div>
@@ -53,9 +50,9 @@ require_once 'functions.php';
             <i class="ri-close-line" id="cart-close"></i>
         </div>
         <div id="cart-notification">Product added to cart!</div>
-        <div class="hero-image" style="height:650px; width:100%; background-color:#cccccc; display:flex; justify-content:center; align-items:center; font-size:30px; font-weight:bold; color:#333;">
+        <div class="hero-image" style="height:650px; width:100%; background-color:#cccccc; display:flex; justify-content:center; align-items:center; font-size:30px; font-weight:bold; color:#333;border-bottom:3px solid rgb(255, 40, 40);">
         </div>        
-        <h1 style="text-align:center; font-weight:600px; padding-top:175px;"> Products that we offer </h1>
+        <h1 style="text-align:center; font-weight:600px; padding-top:45px;"> Products that we offer </h1>
         <section class="brand-logos">
             <h2>Tilapia </h2>
             <h2> Bangus</h2>
