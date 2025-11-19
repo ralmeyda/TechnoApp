@@ -7,16 +7,14 @@ requireAdmin();
 
 $products = getAllProductsAdmin();
 
-// Success messages
+// Alert Messages - Success messages
 $successMessage = '';
 if (isset($_GET['added'])) {
     $successMessage = 'Product added successfully!';
 } elseif (isset($_GET['updated'])) {
     $successMessage = 'Product updated successfully!';
 } elseif (isset($_GET['deleted'])) {
-    $successMessage = 'Product deactivated successfully!';
-} elseif (isset($_GET['restored'])) {
-    $successMessage = 'Product restored successfully!';
+    $successMessage = 'Product Deleted successfully!';
 } elseif (isset($_GET['error'])) {
     $successMessage = 'Operation failed. Please try again.';
 }
@@ -180,36 +178,86 @@ if (isset($_GET['added'])) {
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            function updateStock(productId, newValue) {
-                fetch('update_stock.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ product_id: productId, stock: newValue })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if(!data.success){
-                        alert('Error updating stock: ' + data.message);
-                    }
-                })
-                .catch(err => console.error(err));
+            function sanitizeInt(val, fallback = 0) {
+                const n = parseInt(val, 10);
+                return (isNaN(n) || n < 0) ? fallback : n;
             }
 
-            // Input field changes
-            document.querySelectorAll('.stock-input').forEach(input => {
-                input.addEventListener('blur', () => {
-                    let productId = input.dataset.id;
-                    let newValue = parseInt(input.value);
-                    if(isNaN(newValue) || newValue < 0) newValue = 0;
-                    input.value = newValue; // sanitize input
-                    updateStock(productId, newValue);
-                });
+            function sanitizePrice(val, fallback = 0.00) {
+                const f = parseFloat(val);
+                return (isNaN(f) || f < 0) ? fallback : Math.round(f * 100) / 100;
+            }
 
+            // Enter key triggers Save All
+            document.querySelectorAll('.stock-input, .price-input').forEach(input => {
                 input.addEventListener('keydown', (e) => {
-                    if(e.key === 'Enter') {
-                        input.blur(); // trigger update on Enter
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const saveAllBtn = document.getElementById('save-all');
+                        if (saveAllBtn) saveAllBtn.click();
                     }
                 });
+            });
+
+            // Save All changes handler
+            document.getElementById('save-all').addEventListener('click', async function () {
+                const btn = this;
+                const rows = document.querySelectorAll('tbody tr');
+                const products = [];
+
+                rows.forEach(row => {
+                    const stockInput = row.querySelector('.stock-input');
+                    const priceInput = row.querySelector('.price-input');
+                    if (!stockInput || !priceInput) return;
+                    const id = stockInput.dataset.id;
+                    const stock = sanitizeInt(stockInput.value, 0);
+                    const price = sanitizePrice(priceInput.value, 0.00);
+                    // normalize inputs
+                    stockInput.value = stock;
+                    priceInput.value = price.toFixed(2);
+                    products.push({ product_id: parseInt(id, 10), stock: stock, price: price });
+                });
+
+                if (products.length === 0) return;
+
+                btn.disabled = true;
+                const originalText = btn.textContent;
+                btn.textContent = 'Saving...';
+                const summary = document.getElementById('update-summary');
+
+                try {
+                    const resp = await fetch('update_product.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ products: products })
+                    });
+                    const data = await resp.json();
+
+                    if (data.success) {
+                        summary.style.color = '#155724';
+                        summary.textContent = 'All products updated ✓';
+                        products.forEach(p => {
+                            const msgEl = document.getElementById('msg-' + p.product_id);
+                            if (msgEl) {
+                                msgEl.style.display = 'block';
+                                msgEl.style.color = '#155724';
+                                msgEl.textContent = 'Updated ✓';
+                                setTimeout(() => { msgEl.style.display = 'none'; }, 2500);
+                            }
+                        });
+                    } else {
+                        summary.style.color = '#721c24';
+                        summary.textContent = 'Update failed: ' + (data.message || '');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    summary.style.color = '#721c24';
+                    summary.textContent = 'Network or server error';
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                    setTimeout(() => { summary.textContent = ''; }, 3000);
+                }
             });
 
         });
@@ -236,6 +284,8 @@ if (isset($_GET['added'])) {
         <a href="add_product.php" class="btn-add">
             <i class="ri-add-line"></i> Add New Product
         </a>
+        <button id="save-all" class="btn-add" style="margin-left:12px; background:#2b8aeb;">Save All Changes</button>
+        <div id="update-summary" style="display:inline-block; margin-left:12px; vertical-align: middle;"></div>
 
         <div class="products-table">
             <?php if (empty($products)): ?>
@@ -271,7 +321,12 @@ if (isset($_GET['added'])) {
                                 </td>
                                 <td><?php echo clean($product['product_name']); ?></td>
                                 <td><?php echo clean($product['category_name']); ?></td>
-                                <td>₱<?php echo number_format($product['price'], 2); ?></td>
+                                <td>
+                                    <input type="number" min="0" step="0.01" value="<?php echo number_format($product['price'], 2); ?>"
+                                        id="price-<?php echo $product['product_id']; ?>"
+                                        data-id="<?php echo $product['product_id']; ?>"
+                                        class="price-input" style="width:100px; text-align:center;">
+                                </td>
                                 <td>
                                     <input type="number" min="0" value="<?php echo $product['stock_quantity']; ?>" 
                                         id="stock-<?php echo $product['product_id']; ?>" 
@@ -285,21 +340,22 @@ if (isset($_GET['added'])) {
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <div class="action-btns">
-                                        <?php if ($product['is_active']): ?>
-                                            <!-- Edit Product -->
-                                            <a href="edit_product.php?id=<?php echo $product['product_id']; ?>" class="btn-edit">Edit
-                                            </a>
-                                            <form method="POST" action="delete_product.php" style="display: inline; margin: 0;"
-                                                  onsubmit="return confirm('Are you sure you want to delete this product?');">
-                                                <input type="hidden" name="product_id" value="<?php echo $product['product_id']; ?>">
-                                                <button type="submit" class="btn-delete">
-                                                    Delete
-                                                </button>
-                                            </form>
-                                        <?php else: ?>
-                                        <?php endif; ?>
-                                    </div>
+                                                    <div class="action-btns">
+                                                        <?php if ($product['is_active']): ?>
+                                                            <!-- Edit Product -->
+                                                            <a href="edit_product.php?id=<?php echo $product['product_id']; ?>" class="btn-edit">Edit
+                                                            </a>
+                                                            <form method="POST" action="delete_product.php" style="display: inline; margin: 0;"
+                                                                  onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                                                <input type="hidden" name="product_id" value="<?php echo $product['product_id']; ?>">
+                                                                <button type="submit" class="btn-delete">
+                                                                    Delete
+                                                                </button>
+                                                            </form>
+                                                        <?php else: ?>
+                                                        <?php endif; ?>
+                                                    </div>
+                                    <div class="update-msg" id="msg-<?php echo $product['product_id']; ?>" style="display:none; margin-top:6px; font-size:13px;"></div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

@@ -54,7 +54,7 @@ function uploadProductImage(array $file): array
         ];
     }
 
-    // Path stored in DB (relative to project root)
+    // Path stored in DB
     $relativePath = 'uploads/' . $fileName;
 
     return [
@@ -71,9 +71,11 @@ function getAllProductsAdmin(): array
 {
     global $pdo;
 
+    // Only return active products for the admin listing by default
     $sql = "SELECT p.*, c.category_name
             FROM products p
             LEFT JOIN categories c ON p.category_id = c.category_id
+            WHERE p.is_active = 1
             ORDER BY p.product_id DESC";
 
     $stmt = $pdo->query($sql);

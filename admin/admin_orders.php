@@ -5,6 +5,24 @@ require_once 'admin_functions.php';
 
 requireAdmin();
 
+// Ensure 'paid' and 'picked_up' columns exist in orders table (safe migration)
+try {
+    $colPaid = $pdo->query("SHOW COLUMNS FROM orders LIKE 'paid'")->fetch();
+    $colPicked = $pdo->query("SHOW COLUMNS FROM orders LIKE 'picked_up'")->fetch();
+    if (!$colPaid || !$colPicked) {
+        // add missing columns (both optional)
+        $alterSql = [];
+        if (!$colPaid) $alterSql[] = "ADD COLUMN paid TINYINT(1) NOT NULL DEFAULT 0";
+        if (!$colPicked) $alterSql[] = "ADD COLUMN picked_up TINYINT(1) NOT NULL DEFAULT 0";
+        if (!empty($alterSql)) {
+            $pdo->exec('ALTER TABLE orders ' . implode(', ', $alterSql));
+        }
+    }
+} catch (Exception $e) {
+    // ignore migration errors but log
+    error_log('MIGRATE ORDERS COLUMNS ERROR: ' . $e->getMessage());
+}
+
 // Handle accept/decline
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id'], $_POST['action'])) {
     $orderId = (int)$_POST['order_id'];
