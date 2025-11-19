@@ -53,10 +53,9 @@ require_once 'functions.php';
             <i class="ri-close-line" id="cart-close"></i>
         </div>
         <div id="cart-notification">Product added to cart!</div>
-
-        <div class="hero-image" style="border-bottom:3px solid rgb(255, 40, 40);">
-        </div>
-        <h1 style="text-align:center; font-weight:600px; padding-top:35px;"> Products that we offer </h1>
+        <div class="hero-image" style="height:650px; width:100%; background-color:#cccccc; display:flex; justify-content:center; align-items:center; font-size:30px; font-weight:bold; color:#333;">
+        </div>        
+        <h1 style="text-align:center; font-weight:600px; padding-top:175px;"> Products that we offer </h1>
         <section class="brand-logos">
             <h2>Tilapia </h2>
             <h2> Bangus</h2>

@@ -25,13 +25,16 @@ header{
     align-items:center;
     z-index: 99;
 }
-.hero-image {
-  background-image: url("img/B1.jfif");
-  background-color: #cccccc; 
-  background-position: center;
-  background-repeat: no-repeat; 
-  background-size: cover; 
-
+.hero-image{
+    height:650px; 
+    width:100%; 
+    background-color:#cccccc; 
+    display:flex; 
+    justify-content:center; 
+    align-items:center; 
+    font-size:30px; 
+    font-weight:bold;
+    color:#333 !important;
 }
 
 .column {

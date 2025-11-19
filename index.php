@@ -129,7 +129,6 @@ if (isLoggedIn()) {
         <?php endif; ?>
     </div>
 </section>
-
 <script>
 window.APP = {
     isLoggedIn: <?= json_encode(isLoggedIn()); ?>,
