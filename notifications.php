@@ -29,5 +29,6 @@ $result = $conn->query("SELECT * FROM notifications WHERE user_id=$userId ORDER 
         <p>No notifications yet.</p>
     <?php endif; ?>
 </ul>
+    <?php include 'footer.php'; ?>
 </body>
 </html>
