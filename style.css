@@ -11,6 +11,9 @@
 }
 body{
     color:#333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 header{
     position:fixed;
@@ -517,7 +520,7 @@ header a.logo:focus {
     background:#222;
     color:#eee;
     padding:30px 9% 20px;
-    margin-top:40px;
+    margin-top: auto;
 }
 .footer-inner{
     display:flex;

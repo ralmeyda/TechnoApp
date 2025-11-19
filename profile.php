@@ -44,7 +44,6 @@ $phone = $userRow['phone'] ?? '';
             <a href="home.php">Home</a>
             <a href="index.php">Products</a>
             <a href="about.php">About Us</a>
-            <a href="contact.php">Contact Us</a>
             <a href="profile.php" class="profile-link">Profile</a>
         </nav>
 

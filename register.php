@@ -28,7 +28,6 @@ if (isLoggedIn()) {
             <a href="home.php">Home</a>
             <a href="index.php">Products</a>
             <a href="about.php">About Us</a>
-            <a href="contact.php">Contact Us</a>
             <?php if (isLoggedIn()): ?>
                 <span id="welcome-msg" class="nav-welcome">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></span>
                 <a href="profile.php" class="profile-link">Profile</a>

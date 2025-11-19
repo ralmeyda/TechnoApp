@@ -10,7 +10,7 @@
         <div class="footer-contact">
             <h4>Contact</h4>
             <p>Phone Number: 09610131147</p>
-            <p>Email: info@thoto-nene.example</p>
+            <p>Email: info@thoto-nene@gmail.com</p>
         </div>
     </div>
 
