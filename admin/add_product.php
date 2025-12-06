@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $upload = uploadProductImage($_FILES['product_image']);
 
         if ($upload['success']) {
-            $imageUrl = $upload['path'];   // uploads/xxxx.jpg
+            $imageUrl = $upload['path'];   // uploads/x.jpg
         } else {
             $message = $upload['message'];
             $messageType = 'error';
